@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <title>My Webpage</title>
+        <style> 
+            textarea {
+                /*width: auto;*/
+                max-width: 100%;
+                min-width: 60%;
+                /*height: auto;*/
+                min-height: 300px;
+                max-height: 500px;
+                padding: 12px 20px;
+                box-sizing: border-box;
+                border: 2px solid #ccc;
+                border-radius: 4px;
+                background-color: #f8f8f8;
+                font-size: 16px;
+                resize: none;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>My Webpage</h1>
+        <h2>The current DB is: {{ db_name }}</h2>
+        <h2>Please enter your command below</h2>
+        <form method="POST"> 
+            <textarea name="textbox"></textarea>
+            <br/>
+            <br/>
+            <input type="submit" value="Submit">
+            <input type="reset" value="Reset">
+        </form>
+    </body>
+</html>

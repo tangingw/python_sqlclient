@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <title>My Webpage</title>
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+            
+            td, th {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 5px;
+            }
+            
+            tr:nth-child(even) {
+                background-color: #dddddd;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>SQL Response</h1>
+        <h2>The response based on your command</h2>
+        <table>
+            <tr>
+                {% for item in table_header %}
+                    <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% for response in db_response %}
+            <tr>
+                {% for item in response %}
+                    <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

@@ -1,0 +1,8 @@
+{
+    "yahoo": {
+        "server": "test",
+        "username": "test123",
+        "password": "yahoo12345",
+        "db_name": "test_yahoo"
+    }
+}
