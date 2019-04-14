@@ -2,6 +2,8 @@
 
 ## Synopsis
 
+This is a universal SQL client that is written in Python. It is a command prompt developed due to nuisance experience that author faces when he uses a traditional SQL client. This is also a very lightweight SQL client that tries its best to reduce the dependacy of the external libraries apart from the SQL connectors and webapp library. The author hopes that with the minimal coding effort, the tool can be fitted into any platform that installs Python, including modern embedded devices.
+
 ## Addressing Controversial Remarks
 
 1. What is the purpose of writing such a tool/CLI?
@@ -12,7 +14,7 @@
 
 2. Isn't that sqlalchemy can handle everything that relates to SQL?
 
-    Comparing sqlalchemy with my tool might be irrelevant, because my tool is a tool. Hence it should be compared with mysql (client for MySQL) and psql (client for PostgreSQL). With the help in PEP 249, it allows me to build a universal tool such that the client can be used after I install the library MySQLDb or pymssql, without editing any part of the code in the codebase. 
+    Comparing sqlalchemy with my tool might be irrelevant, because my tool is a tool. Hence it should be compared with mysql (client for MySQL) and psql (client for PostgreSQL). With the help in PEP 249, it allows me to build a universal tool such that the client can be used after I install the library MySQLDb or pymssql, without editing any part of the code in the codebase.
 
 3. What is PEP 249 and How does this help in explaining **Universal** client?
 
@@ -107,7 +109,7 @@ pip install -r requirements.txt
 
 Register your Database to the config file:
 
-```
+```unix
 python init.py
 ```
 
