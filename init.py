@@ -28,16 +28,24 @@ def init_install():
     temp["db_name"] = input("Please enter your db_name: ")
 
     count = 0
+    empty_key = []
 
     for key, value in temp.items():
 
         if not value or len(value) == 0:
 
+            empty_key.append(key)
             print("{} is empty".format(key))
+
             count += 1
     
     if count > 0:
 
+        print(
+            "These attributes have empty entries: {}".format(
+                ','.join(empty_key)
+            )
+        )
         exit(1)
 
     else:
