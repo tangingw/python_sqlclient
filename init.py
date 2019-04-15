@@ -1,5 +1,7 @@
 import getpass
 import json
+import re
+import sys
 
 
 def init_install():
@@ -55,5 +57,44 @@ def init_install():
             json.dumps(config_data, indent=4)
         )
     
+def delete_db_meta(db_nickname):
 
-init_install()
+    config_data = None
+        
+
+    with open("config/config.json", "r") as config_file:
+
+        config_data = json.loads(config_file.read())
+    
+    del config_data[db_nickname]
+
+    with open("config/config.json", "w", newline="") as config_file:
+
+        config_file.write(
+            json.dumps(config_data, indent=4)
+        )
+
+
+def init_db():
+
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+
+        print("python init.py init")
+        print("python init.py del <db_nickname>")
+
+    else:
+
+        if re.search(r"^(?i)init$", sys.argv[-1]) and len(sys.argv) == 1:
+
+            init_install()
+        
+        elif re.search(r"^(?i)del\s.+$", sys.argv[1]) and len(sys.argv) == 2:
+
+            delete_db_meta(sys.argv[-1])
+    
+        else:
+
+            print("Invalid parameters")
+
+
+init_db()

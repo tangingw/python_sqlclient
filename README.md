@@ -95,7 +95,7 @@ The installation is easy. Once you have ```git clone``` this repo, all you need 
 ```txt
 flask
 mysqlclient
-mssql
+pymssql
 
 ```
 
