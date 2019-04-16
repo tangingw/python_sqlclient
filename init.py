@@ -96,7 +96,7 @@ def init_db():
 
             init_install()
         
-        elif re.search(r"^(?i)del\s.+$", sys.argv[1]) and len(sys.argv) == 2:
+        elif re.search(r"^(?i)del$", sys.argv[1]) and len(sys.argv) == 2:
 
             delete_db_meta(sys.argv[-1])
     
