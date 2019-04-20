@@ -102,35 +102,19 @@ def database_interface(database_type: str, db_nickname: str=None):
 
         try:
 
-            if (received_command in command_keys) or re.search(r"save\s.+", received_command):
-
-                db_client.command_interface(received_command, command_buffer)
-
-            elif re.search(r"^column \w+(\.)*\w+\s?\|?$", received_command):
-
-                db_client.delay_column(received_command)
-
-            elif re.search(r"switch \w+$", received_command):
-
-                database_interface(database_type, received_command.split(" ")[1])
-
-            elif received_command == "webapp":
+            if received_command == "webapp":
                 
                 from app.webapp import app
 
                 app.run(host="127.0.0.1", port=5000)
 
+            elif re.search(r"switch \w+$", received_command):
+
+                database_interface(database_type, received_command.split(" ")[1])
+
             else:
 
-                sql_regex = re.compile(r"^(?i)(CREATE|SELECT|UPDATE|INSERT|DELETE)$")
-
-                if sql_regex.match(received_command.split(" ")[0]):
-
-                    db_client.delay_command(received_command)
-                
-                else:
-
-                    print("Not a valid SQL Expression!")
+                db_client.command_interface(received_command, command_buffer)
 
         except Exception as error:
 
@@ -141,11 +125,6 @@ def database_interface(database_type: str, db_nickname: str=None):
             command_buffer = received_command
         
         received_command = front_prompt(database_type, db_nickname)
-
-    #Clear the environment variable after the webapp
-    
-    del os.environ["DB_NAME"]
-    del os.environ["DB_TYPE"]
 
 
 def initial_interface() -> str:

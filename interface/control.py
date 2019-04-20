@@ -22,18 +22,17 @@ class _DBInternalInterface(DataBaseEngine):
             index = 0
             next_input = ">"
 
-            while data_length > 0:
+            while True:
 
                 if next_input == ">":
 
-                    if index < int(len(data_from_table)/line_to_display):
+                    if index < int(len(data_from_table)/line_to_display) + 1:
 
                         for query in data_from_table[index*line_to_display: (index + 1)*line_to_display]:
 
                             print("|".join([str(item) for item in query]))
 
                         index += 1
-                        data_length -= 10
 
                     else:
 
@@ -49,8 +48,6 @@ class _DBInternalInterface(DataBaseEngine):
 
                             print("|".join([str(item) for item in query]))
 
-                        data_length += 10
-
                     else:
 
                         print("You are at the top of the page")
@@ -63,8 +60,7 @@ class _DBInternalInterface(DataBaseEngine):
 
                     print("{0} is not recognized!".format(next_input))
 
-
-                next_input = input("""\n?Press '<' or '>' to continue: """)
+                next_input = input("""\nPress '<' or '>' to continue: """)
 
     def _get_output(self, output=None, delay_mode: bool=False, line_to_display: int=10):
 
@@ -171,10 +167,20 @@ class _DBInternalInterface(DataBaseEngine):
 
                     print("File is not found. Result is not saved?")
 
+            elif re.search(r"^column\s\w+\s?\|?$", command_stored_in_buffer):
 
-class DBInterface(_DBInternalInterface):
+                self._delay_column_output(command_stored_in_buffer)
 
-    def delay_command(self, input_command: str):
+            elif command_stored_in_buffer.find("|") != -1:
+
+                self._delay_result_output(command_stored_in_buffer)
+
+            else:
+
+                self.exec(command_stored_in_buffer)
+                self._get_output()
+
+    def _delay_result_output(self, input_command: str):
 
         if input_command.find("|") != -1:
 
@@ -186,18 +192,20 @@ class DBInterface(_DBInternalInterface):
             self.exec(input_command)            
             self._get_output()
 
-    def delay_column(self, input_command: str):
+    def _delay_column_output(self, input_command: str):
 
         if input_command.find("|") != -1:
 
-            input_command = input_command.split("|")[0]
-            table_name = input_command.split(" ")[1]
+            table_name = (input_command.split("|")[0]).split(" ")[1]
             self._get_output(self.retrieve_column_name(table_name), delay_mode=True)
 
         else:
 
             table_name = input_command.split(" ")[1]
             self._get_output(self.retrieve_column_name(table_name))
+
+
+class DBInterface(_DBInternalInterface):
 
     def command_interface(self, input_command: str, command_stored_in_buffer: str):
 
@@ -242,55 +250,35 @@ class DBInterface(_DBInternalInterface):
             input_command_list = input_command.split(" ")
 
             if len(input_command_list) == 2:
-            
-                filename = input_command_list[1]
-                self._save_query_to_file(filename, command_stored_in_buffer)
+
+                self._save_query_to_file(
+                    input_command_list[1], #filename
+                    command_stored_in_buffer
+                )
 
             elif len(input_command_list) > 2:
 
-                filename = input_command_list[-1]
-                sql_command = " ".join(input_command_list[1:-1])
-                self._save_query_to_file(filename, sql_command=sql_command)
-
-        elif input_command == "r":
-
-            if not command_stored_in_buffer or command_stored_in_buffer == "r":
-
-                print("No Previous Command Found!")
-            
-            else:
-
-                print(
-                    "Your Previous Command is: {}".format(command_stored_in_buffer)
+                self._save_query_to_file(
+                    input_command_list[-1], #filename 
+                    sql_command= " ".join(input_command_list[1:-1]) #sqlcommand
                 )
-        
-        elif input_command == "t":
 
-            if not command_stored_in_buffer:
+        elif re.search(r"^column \w+(\.)*\w+\s?\|?$", input_command):
 
-                print("You cannot execute any command")
+            self._delay_column_output(input_command)
+
+        elif input_command in ("r", "t"):
+
+            self._retrieve_mode(input_command, command_stored_in_buffer)
+
+        else:
+
+            sql_regex = re.compile(r"^(?i)(CREATE|SELECT|UPDATE|INSERT|DELETE)$")
+
+            if sql_regex.match(input_command.split(" ")[0]):
+
+                self._delay_result_output(input_command)
             
-            elif re.search(r"save\s.+", command_stored_in_buffer):
-
-                filename = command_stored_in_buffer.split(" ")[1]
-
-                if os.path.exists(filename):
-
-                    print("You Have saved your previous query to file: {0}".format(filename))
-                
-                else:
-
-                    print("File is not found. Result is not saved?")
-  
-            elif re.search(r"^column\s\w+\s?\|?$", command_stored_in_buffer):
-
-                self.delay_column(command_stored_in_buffer)
-
-            elif command_stored_in_buffer.find("|") != -1:
-
-                self.delay_command(command_stored_in_buffer)
-
             else:
 
-                self.exec(command_stored_in_buffer)
-                self._get_output()
+                print("Not a valid SQL Expression!")

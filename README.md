@@ -140,6 +140,8 @@ The ```init.py``` script will write to config file based on your input
 
     ```unix
     python main.py mysql test_yahoo
+    python main.py mssql test_yahoo
+    python main.py postgresql test_yahoo
     ```
 
 2. Basic Command
@@ -184,8 +186,8 @@ The ```init.py``` script will write to config file based on your input
 
 ## Things to Do
 
-1. Write the test case
-2. Write the data visualization
+1. Write the test case (In Progress)
+2. Write the data visualization (In Progress)
 3. Make the module more scalable and extensible
 4. Consider Asynchronous approach (thanks go to [Christoforus](https://www.facebook.com/totoganteng))
 5. Finish the test for:

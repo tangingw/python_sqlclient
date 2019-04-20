@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from interface.view import initial_interface
 from interface.view import database_interface
@@ -33,3 +34,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+    #Clear the environment variable after the webapp
+    
+    del os.environ["DB_NAME"]
+    del os.environ["DB_TYPE"]
