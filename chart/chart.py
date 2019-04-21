@@ -2,7 +2,7 @@ import random
 from .colours import generate_colours
 
 
-def chart_color(data_element_length) -> list:
+def _chart_color(data_element_length) -> list:
 
     colors = generate_colours(None)
     color_key = list(colors.keys())
@@ -12,7 +12,7 @@ def chart_color(data_element_length) -> list:
     ]
 
 
-def order_data(data: list) -> list:
+def _order_data(data: list) -> list:
 
     temp_storage = [list() for i in range(len(data[0]))]
 
@@ -43,7 +43,7 @@ def generate_option(title: str, chart_type: str) -> dict:
         "tooltips": {}
     }
 
-    if title in ["bar", "line"]:
+    if chart_type in ["bar", "line", "scatter"]:
 
        option_dict.update(
            {
@@ -62,12 +62,10 @@ def generate_option(title: str, chart_type: str) -> dict:
     return option_dict
 
 
-def generate_bar(title: str, labelname: str, data: list):
+def generate_bar(title: str, labelname: str, data: list) -> dict:
 
-    data_element_length = len(data[0])
-    color_name_list = chart_color(data_element_length)
-    
-    temp_storage = order_data(data)              
+    temp_storage = _order_data(data) 
+    color_name_list = _chart_color(len(data[0]))             
 
     return {
         "type": "bar",
@@ -77,7 +75,7 @@ def generate_bar(title: str, labelname: str, data: list):
                 {
                     "label": labelname,
                     "data": temp_storage[i + 1],
-                    "backgroundColor": generate_colours(color_name_list[i], alpha=0.1),
+                    "backgroundColor": generate_colours(color_name_list[i], alpha=0.3),
                     "borderColor": generate_colours(color_name_list[i]),
                     "borderWidth": 2,
                 } for i in range(len(temp_storage[1:]))
@@ -87,13 +85,10 @@ def generate_bar(title: str, labelname: str, data: list):
     }
 
 
-def generate_line(title: str, labelname: str, data: list, fill: bool=False):
+def generate_line(title: str, labelname: str, data: list, fill: bool=False) -> dict:
 
-    data_element_length = len(data[0])
-    color_name_list = chart_color(data_element_length)
-    
-    temp_storage = order_data(data)            
-
+    temp_storage = _order_data(data)
+    color_name_list = _chart_color(len(data[0]))           
 
     return {
         "type": "line",
@@ -103,7 +98,7 @@ def generate_line(title: str, labelname: str, data: list, fill: bool=False):
                 {
                     "label": labelname,
                     "data": temp_storage[i + 1],
-                    "backgroundColor": generate_colours(color_name_list[i], alpha=0.2),
+                    "backgroundColor": generate_colours(color_name_list[i], alpha=0.3),
                     "borderColor": generate_colours(color_name_list[i]),
                     "borderWidth": 2,
                     "fill": fill,
@@ -117,16 +112,15 @@ def generate_line(title: str, labelname: str, data: list, fill: bool=False):
 
 def generate_pie(title: str, labelname: str, data: list) -> dict:
 
-    data_element_length = len(data)
-    color_name_list = chart_color(data_element_length)
-    print(color_name_list)
-    temp_storage = order_data(data)
+    temp_storage = _order_data(data)
+    color_name_list = _chart_color(len(data))
+    #print(color_name_list)
 
     background_color = [
-        generate_colours(color_name, alpha=0.5) for color_name in color_name_list
+        generate_colours(color_name, alpha=0.3) for color_name in color_name_list
     ]
 
-    print(background_color)
+    #print(background_color)
     return {
         "type": "pie",
         "data": {
@@ -145,9 +139,8 @@ def generate_pie(title: str, labelname: str, data: list) -> dict:
 
 def generate_scatter_plot(title: str, labelname: list, data: list) -> dict:
 
-    color_name_list = chart_color(len(data[0]))
-    
-    temp_storage = order_data(data)
+    temp_storage = _order_data(data)
+    color_name_list = _chart_color(len(data[0]))
 
     return {
         "type": "scatter",
@@ -161,7 +154,7 @@ def generate_scatter_plot(title: str, labelname: list, data: list) -> dict:
                             "y": d[index]
                         } for index, d_0 in enumerate(temp_storage[0])
                     ],
-                    "backgroundColor": generate_colours(color_name_list[index], alpha=0.5),
+                    "backgroundColor": generate_colours(color_name_list[index], alpha=0.3),
                     "borderColor": generate_colours(color_name_list[index]),
                     "borderWidth": 2,
                     "lineTension": 0.1
@@ -170,3 +163,13 @@ def generate_scatter_plot(title: str, labelname: list, data: list) -> dict:
         },
         "options": generate_option(title, "pie")
     }
+
+
+def generate_chart(chart_type: str, title: str, labelname: str, data: list) -> dict:
+
+    return {
+        "bar": generate_bar,
+        "line": generate_line,
+        "pie": generate_pie,
+        "scatter": generate_scatter_plot
+    }[chart_type](title, labelname, data)

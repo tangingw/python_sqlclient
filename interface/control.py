@@ -207,11 +207,13 @@ class _DBInternalInterface(DataBaseEngine):
 
 class DBInterface(_DBInternalInterface):
 
-    def command_interface(self, input_command: str, command_stored_in_buffer: str):
+    def get_db(self):
 
-        if input_command in ("help", "h"):
+        print(list(self.configuration.keys()))
+    
+    def get_help(self):
 
-            print(
+        print(
                 """
                 Help:
                     e                                   -- exeucte the previous command
@@ -237,13 +239,30 @@ class DBInterface(_DBInternalInterface):
                 """
             )
 
-        elif input_command == "db":
+    def get_h(self):
 
-            print(list(self.configuration.keys()))
+        self.get_help()
 
-        elif input_command == "table":
+    def get_table(self):
 
-            self._get_output(self.retrieve_table())
+        self._get_output(self.retrieve_table())
+
+    def get_r(self, command_stored_in_buffer):
+
+        self._retrieve_mode("r", command_stored_in_buffer)
+    
+    def get_t(self, command_stored_in_buffer):
+
+        self._retrieve_mode("t", command_stored_in_buffer)
+
+    def command_interface(self, input_command: str, command_stored_in_buffer: str):
+
+        input_command_list = input_command.split(" ")
+
+        if len(input_command_list) == 1 and hasattr(self, "get_{}".format(input_command_list[0])):
+
+            func = getattr(self, "get_{}".format(input_command_list[0]))
+            func()
         
         elif re.search(r"save\s.+", input_command):
 
@@ -267,13 +286,9 @@ class DBInterface(_DBInternalInterface):
 
             self._delay_column_output(input_command)
 
-        elif input_command in ("r", "t"):
-
-            self._retrieve_mode(input_command, command_stored_in_buffer)
-
         else:
 
-            sql_regex = re.compile(r"^(?i)(CREATE|SELECT|UPDATE|INSERT|DELETE)$")
+            sql_regex = re.compile(r"^(?i)(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
 
             if sql_regex.match(input_command.split(" ")[0]):
 

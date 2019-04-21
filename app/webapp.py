@@ -5,6 +5,7 @@ import time
 from flask import Flask, request
 from flask import jsonify, render_template
 from database.models import DataBaseEngine
+from chart.chart import generate_chart
 
 
 db_client = None
@@ -128,14 +129,15 @@ def generate_chart_js():
 
         incoming_data = request.form
 
-        #print(incoming_data)
         _, db_response = _get_data_from_db(incoming_data["sql_query"])
 
-        from chart.chart import generate_bar
-
-        chart_data = generate_bar(
-            incoming_data["title"], incoming_data["dataset_label"], db_response
+        chart_data = generate_chart(
+            incoming_data["chart"],
+            incoming_data["title"], 
+            incoming_data["dataset_label"], 
+            db_response,
         )
+
         #print(json.dumps(chart_data, indent=4))
         return render_template(
             "webvisual.html",
