@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    </head>
+    <style>
+        #myChart {
+            height: {{ height }}px
+        }
+    </style>
+    <body>
+        <div id="chart">
+            <canvas id="myChart"></canvas>
+        </div>
+        <a id="download_image" download="image.png"><button type="button" onClick="download()">Download Image</button></a>
+    </body>
+    <script>
+        
+        var download = function() {
+            var download = document.getElementById("download_image");
+            var image = document.getElementById("myChart").toDataURL("image/png")
+                        .replace("image/png", "image/octet-stream");
+            download.setAttribute("href", image);
+        };
+
+        var incomingDataJson = JSON.parse({{ incoming_data_json|tojson|safe }});
+        incomingDataJson.options.tooltips = {
+            callbacks: {
+                label: (item) => `${item.yLabel} {{ unit }}`
+            }
+        };
+        
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, incomingDataJson);
+    </script>
+</html>

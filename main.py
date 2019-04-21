@@ -34,7 +34,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
     #Clear the environment variable after the webapp
-    
     del os.environ["DB_NAME"]
     del os.environ["DB_TYPE"]
