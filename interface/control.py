@@ -280,6 +280,12 @@ class DBInterface(_DBInternalInterface):
             )
         )
 
+    def get_webapp(self):
+
+        from app.webapp import app
+
+        app.run(host="127.0.0.1", port=5000)
+
     def command_interface(self, input_command: str, command_stored_in_buffer: str):
 
         input_command_list = input_command.split(" ")

@@ -102,13 +102,7 @@ def database_interface(database_type: str, db_nickname: str=None):
 
         try:
 
-            if received_command == "webapp":
-                
-                from app.webapp import app
-
-                app.run(host="127.0.0.1", port=5000)
-
-            elif re.search(r"switch \w+$", received_command):
+            if re.search(r"switch \w+$", received_command):
 
                 database_interface(database_type, received_command.split(" ")[1])
 
