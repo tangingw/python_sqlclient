@@ -56,7 +56,15 @@ This is a universal SQL client that is written in Python. It is a command prompt
 
          My tool:
 
+         By typing ```webapp``` on the command prompt:
+         
+         ```unix
+         1> webapp 
+         ```
+
          A webapp will be spawn on http://127.0.0.1:5000/sql_webapp
+         
+
 
     4. Save the query to csv file
 
