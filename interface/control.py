@@ -109,7 +109,7 @@ class _DBInternalInterface(DataBaseEngine):
         
         query_result = None
 
-        if command_stored_in_buffer and re.search(r"(?i)(select)\s.+", command_stored_in_buffer):
+        if command_stored_in_buffer:
 
             if command_stored_in_buffer.find("|") > -1:
 
@@ -117,13 +117,15 @@ class _DBInternalInterface(DataBaseEngine):
 
             if re.search(r"column\s.+", command_stored_in_buffer):
 
-                query_result = self.retrieve_column_name(command_stored_in_buffer.split(" ")[1])
+                query_result = self.retrieve_column_name(
+                    command_stored_in_buffer.split(" ")[1]
+                )
             
             elif re.search(r"table\s.+", command_stored_in_buffer):
 
                 query_result = self.retrieve_table()
 
-            else:
+            elif re.search(r"(?i)(select)\s.+", command_stored_in_buffer):
 
                 self.exec(command_stored_in_buffer)
                 query_result = self.cursor.fetchall()
