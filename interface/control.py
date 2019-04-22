@@ -207,6 +207,8 @@ class _DBInternalInterface(DataBaseEngine):
 
 class DBInterface(_DBInternalInterface):
 
+    command_stored_in_buffer = None
+
     def get_db(self):
 
         print(list(self.configuration.keys()))
@@ -247,50 +249,61 @@ class DBInterface(_DBInternalInterface):
 
         self._get_output(self.retrieve_table())
 
-    def get_r(self, command_stored_in_buffer):
+    def get_r(self):
 
-        self._retrieve_mode("r", command_stored_in_buffer)
+        self._retrieve_mode("r", self.command_stored_in_buffer)
     
-    def get_t(self, command_stored_in_buffer):
+    def get_t(self):
 
-        self._retrieve_mode("t", command_stored_in_buffer)
+        self._retrieve_mode("t", self.command_stored_in_buffer)
+
+    def get_save(self, args_list: list):
+
+        if len(args_list) > 1:
+
+            self._save_query_to_file(
+                args_list[-1], #filename 
+                sql_command= " ".join(args_list[0:-1]) #sqlcommand
+            )
+
+        elif len(args_list) == 1:
+        
+            self._save_query_to_file(
+                args_list[0], #filename
+                self.command_stored_in_buffer
+            )
+
+    def get_column(self, args_list: list):
+
+        self._delay_column_output("column {}".format(
+                " ".join(args_list)
+            )
+        )
 
     def command_interface(self, input_command: str, command_stored_in_buffer: str):
 
         input_command_list = input_command.split(" ")
+        self.command_stored_in_buffer = command_stored_in_buffer
 
-        if len(input_command_list) == 1 and hasattr(self, "get_{}".format(input_command_list[0])):
+        if hasattr(self, "get_{}".format(input_command_list[0])):
 
-            func = getattr(self, "get_{}".format(input_command_list[0]))
-            func()
-        
-        elif re.search(r"save\s.+", input_command):
+            instance_method = getattr(self, 
+                "get_{}".format(input_command_list[0])
+            )
 
-            input_command_list = input_command.split(" ")
+            if len(input_command_list) == 1:
 
-            if len(input_command_list) == 2:
+                instance_method()
 
-                self._save_query_to_file(
-                    input_command_list[1], #filename
-                    command_stored_in_buffer
-                )
+            elif len(input_command_list) > 1:
 
-            elif len(input_command_list) > 2:
-
-                self._save_query_to_file(
-                    input_command_list[-1], #filename 
-                    sql_command= " ".join(input_command_list[1:-1]) #sqlcommand
-                )
-
-        elif re.search(r"^column \w+(\.)*\w+\s?\|?$", input_command):
-
-            self._delay_column_output(input_command)
+                instance_method(input_command_list[1:])
 
         else:
 
             sql_regex = re.compile(r"^(?i)(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
 
-            if sql_regex.match(input_command.split(" ")[0]):
+            if sql_regex.match(input_command_list[0]):
 
                 self._delay_result_output(input_command)
             
