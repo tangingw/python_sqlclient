@@ -135,51 +135,6 @@ class _DBInternalInterface(DataBaseEngine):
             
         self._write_to_file(filename, query_result)
 
-    def _retrieve_mode(self, input_command: str, command_stored_in_buffer: str):
-
-        if input_command == "r":
-
-            if not command_stored_in_buffer or command_stored_in_buffer == "r":
-
-                print("No Previous Command Found!")
-            
-            else:
-
-                print(
-                    "Your Previous Command is: {}".format(command_stored_in_buffer)
-                )
-        
-        elif input_command == "t":
-
-            if not command_stored_in_buffer:
-
-                print("You cannot execute any command")
-            
-            elif re.search(r"save\s.+", command_stored_in_buffer):
-
-                filename = command_stored_in_buffer.split(" ")[1]
-
-                if os.path.exists(filename):
-
-                    print("You Have saved your previous query to file: {0}".format(filename))
-                
-                else:
-
-                    print("File is not found. Result is not saved?")
-
-            elif re.search(r"^column\s\w+\s?\|?$", command_stored_in_buffer):
-
-                self._delay_column_output(command_stored_in_buffer)
-
-            elif command_stored_in_buffer.find("|") != -1:
-
-                self._delay_result_output(command_stored_in_buffer)
-
-            else:
-
-                self.exec(command_stored_in_buffer)
-                self._get_output()
-
     def _delay_result_output(self, input_command: str):
 
         if input_command.find("|") != -1:
@@ -251,11 +206,38 @@ class DBInterface(_DBInternalInterface):
 
     def get_r(self):
 
-        self._retrieve_mode("r", self.command_stored_in_buffer)
+        if (not self.command_stored_in_buffer) or self.command_stored_in_buffer == "r":
+
+                print("No Previous Command Found!")
+            
+        else:
+
+            print(
+                "Your Previous Command is: {}".format(self.command_stored_in_buffer)
+            )
     
     def get_t(self):
 
-        self._retrieve_mode("t", self.command_stored_in_buffer)
+        if not self.command_stored_in_buffer:
+
+            print("You cannot execute any command")
+        
+        else:
+
+            buffer_list = self.command_stored_in_buffer.split(" ")
+
+            if hasattr(self, "do_{}".format(buffer_list[0])):
+
+                getattr(self, "do_{}".format(buffer_list)[0])(buffer_list[1:])
+
+            elif self.command_stored_in_buffer.find("|") != -1:
+
+                self._delay_result_output(self.command_stored_in_buffer)
+
+            else:
+
+                self.exec(self.command_stored_in_buffer)
+                self._get_output()
 
     def get_save(self, args_list: list):
 
@@ -268,16 +250,20 @@ class DBInterface(_DBInternalInterface):
 
         elif len(args_list) == 1:
         
-            self._save_query_to_file(
-                args_list[0], #filename
-                self.command_stored_in_buffer
-            )
+            if os.path.exists(args_list[0]):
+
+                print("You Have saved your previous query to file: {0}".format(args_list[0]))
+            
+            else:
+                self._save_query_to_file(
+                    args_list[0], #filename
+                    self.command_stored_in_buffer
+                )
 
     def get_column(self, args_list: list):
 
-        self._delay_column_output("column {}".format(
-                " ".join(args_list)
-            )
+        self._delay_column_output(
+            "column {}".format(" ".join(args_list))
         )
 
     def get_webapp(self):
@@ -285,6 +271,18 @@ class DBInterface(_DBInternalInterface):
         from app.webapp import app
 
         app.run(host="127.0.0.1", port=5000)
+
+    def get_sql(self, input_command):
+
+        sql_regex = re.compile(r"^(?i)(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
+
+        if sql_regex.match(input_command.split()[0]):
+
+            self._delay_result_output(input_command)
+        
+        else:
+
+            print("Not a valid SQL Expression!")
 
     def command_interface(self, input_command: str, command_stored_in_buffer: str):
 
@@ -307,12 +305,4 @@ class DBInterface(_DBInternalInterface):
 
         else:
 
-            sql_regex = re.compile(r"^(?i)(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
-
-            if sql_regex.match(input_command_list[0]):
-
-                self._delay_result_output(input_command)
-            
-            else:
-
-                print("Not a valid SQL Expression!")
+            self.get_sql(input_command)
