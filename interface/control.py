@@ -127,12 +127,12 @@ class _DBInternalInterface(DataBaseEngine):
 
             elif re.search(r"(?i)(select)\s.+", command_stored_in_buffer):
 
-                self.exec(command_stored_in_buffer)
+                self.execute(command_stored_in_buffer)
                 query_result = self.cursor.fetchall()
 
         elif sql_command and re.search(r"(?i)(select)\s.+", sql_command):
 
-            self.exec(sql_command)
+            self.execute(sql_command)
             query_result = self.cursor.fetchall()
             
         self._write_to_file(filename, query_result)
@@ -141,12 +141,12 @@ class _DBInternalInterface(DataBaseEngine):
 
         if input_command.find("|") != -1:
 
-            self.exec(input_command.split("|")[0])
+            self.execute(input_command.split("|")[0])
             self._get_output(delay_mode=True, line_to_display=10)
         
         else:
 
-            self.exec(input_command)            
+            self.execute(input_command)            
             self._get_output()
 
     def _delay_column_output(self, input_command: str):
@@ -238,7 +238,7 @@ class DBInterface(_DBInternalInterface):
 
             else:
 
-                self.exec(self.command_stored_in_buffer)
+                self.execute(self.command_stored_in_buffer)
                 self._get_output()
 
     def get_save(self, args_list: list):

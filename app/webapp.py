@@ -4,7 +4,8 @@ import os
 import time
 from flask import Flask, request
 from flask import jsonify, render_template
-from database.models import DataBaseEngine
+#from database.models import DataBaseEngine
+from interface.control_new import DBControlInterface
 from chart.chart import generate_chart
 
 
@@ -13,7 +14,7 @@ db_client = None
 
 if os.environ["DB_TYPE"] != "sqlite3":
 
-    db_client = DataBaseEngine(
+    db_client = DBControlInterface(
         os.environ["DB_TYPE"], 
         db_nickname=os.environ["DB_NAME"]
     )
@@ -24,42 +25,26 @@ if os.environ["DB_TYPE"] != "sqlite3":
 app = Flask(__name__)
 
 
-def _return_query_result(sql_cursor):
-
-    return (
-        sql_cursor.cursor.fetchall(), 
-        [x[0] for x in sql_cursor.cursor.description]
-    )
-
-
 def _get_data_from_db(incoming_data: str) -> (list, list):
-
-    table_header = ['']
-    db_response = ['']
 
     if os.environ["DB_TYPE"] == "sqlite3":
 
-        sqlite3_client = DataBaseEngine(
+        sqlite3_client = DBControlInterface(
             "sqlite3", 
             sqlite3_filename=os.environ["DB_NAME"]
         )
 
         sqlite3_client.connect()
-        sqlite3_client.execute("""{}""".format(incoming_data))
+        return_data = sqlite3_client.command_interface("""{}""".format(incoming_data), None)
 
-        if re.search(r'(?i)select.+', incoming_data):
+        return [x[0] for x in sqlite3_client.cursor.description], return_data
 
-            db_response, table_header = _return_query_result(sqlite3_client)
 
-    else:
+    return_data = db_client.command_interface(
+        """{}""".format(incoming_data), None
+    )
 
-        db_client.execute("""{}""".format(incoming_data))
-        
-        if re.search(r'(?i)select.+', incoming_data):
-
-            db_response, table_header = _return_query_result(db_client)
-
-    return table_header, db_response
+    return [x[0] for x in db_client.cursor.description], return_data
 
 
 @app.route("/debug")
@@ -70,43 +55,6 @@ def get_debug():
 
 @app.route("/sql_webapp", methods=["POST", "GET"])
 def post_command():
-
-    def _return_query_result(sql_cursor):
-
-        return (
-            sql_cursor.cursor.fetchall(), 
-            [x[0] for x in sql_cursor.cursor.description]
-        )
-
-    def _get_data_from_db(incoming_data: str) -> (list, list):
-
-        table_header = ['']
-        db_response = ['']
-
-        if os.environ["DB_TYPE"] == "sqlite3":
-
-            sqlite3_client = DataBaseEngine(
-                "sqlite3", 
-                sqlite3_filename=os.environ["DB_NAME"]
-            )
-
-            sqlite3_client.connect()
-            sqlite3_client.execute("""{}""".format(incoming_data))
-
-            if re.search(r'(?i)select.+', incoming_data):
-
-                db_response, table_header = _return_query_result(sqlite3_client)
-
-        else:
-
-            db_client.execute("""{}""".format(incoming_data))
-            
-            if re.search(r'(?i)select.+', incoming_data):
-
-                db_response, table_header = _return_query_result(db_client)
-
-        return table_header, db_response
-
 
     if request.method == "POST":
 
