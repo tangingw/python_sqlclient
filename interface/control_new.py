@@ -26,6 +26,7 @@ class DBControlInterface(DataBaseEngine):
     def _save_query_to_file(self, filename: str, sql_command: str=None):
         
         query_result = None
+        command_buffer = None
 
         if self.command_stored_in_buffer:
 
@@ -33,11 +34,15 @@ class DBControlInterface(DataBaseEngine):
 
                 command_buffer = self.command_stored_in_buffer.split("|")[0]
 
-            query_result = self.command_interface(command_buffer, None)
+            else:
+
+                command_buffer = self.command_stored_in_buffer
+
+            query_result = self.command_interface(command_buffer)
 
         elif sql_command and re.search(r"(?i)(select)\s.+", sql_command):
 
-            query_result = self.command_interface(sql_command, None)
+            query_result = self.command_interface(sql_command)
             
         self._write_to_file(filename, query_result)
 
@@ -149,10 +154,12 @@ class DBControlInterface(DataBaseEngine):
 
         return "Not a valid SQL Expression!"
 
-    def command_interface(self, input_command: str, command_stored_in_buffer: str):
+    #def command_interface(self, input_command: str, command_stored_in_buffer: str):
+    def command_interface(self, input_command: str):
 
         input_command_list = input_command.split(" ")
-        self.command_stored_in_buffer = command_stored_in_buffer
+
+        #self.command_stored_in_buffer = command_stored_in_buffer
 
         if hasattr(self, "get_{}".format(input_command_list[0])):
 
@@ -164,9 +171,15 @@ class DBControlInterface(DataBaseEngine):
 
                 return instance_method()
 
-            elif len(input_command_list) > 1 and input_command_list[0] in ["save", "column"]:
+            elif len(input_command_list) > 1: 
+            
+                if input_command_list[0] in ["save", "column"]:
 
-                return instance_method(input_command_list[1:])
+                    return instance_method(input_command_list[1:])
+
+                elif input_command_list[0] == "table":
+
+                    return instance_method()
 
         return self.get_sql(input_command)
 
@@ -236,9 +249,9 @@ class DBInterface(DBControlInterface):
 
         if isinstance(data_from_db, str):
 
-            print(data_from_db)
+            print("{}\n".format(data_from_db))
         
-        elif isinstance(data_from_db, list):
+        elif isinstance(data_from_db, tuple):
 
             table_header = "|".join([desc[0] for desc in self.cursor.description])
 
@@ -258,16 +271,16 @@ class DBInterface(DBControlInterface):
             print("\n")
 
     
-    def get_result_output(self, input_command: str):
+    def get_result_output(self, input_command: str, command_stored_in_buffer):
 
-        #Need to solve the db, help, table, save command
+        self.command_stored_in_buffer = command_stored_in_buffer
+
         if input_command.find("|") != -1:
 
             #self.exec(input_command.split("|")[0])
             self._get_output(
                 data_from_db=self.command_interface(
-                    input_command, 
-                    self.command_stored_in_buffer
+                    input_command.split("|")[0], 
                 ),
                 delay_mode=True, 
                 line_to_display=10
@@ -277,7 +290,6 @@ class DBInterface(DBControlInterface):
            
             self._get_output(
                 data_from_db=self.command_interface(
-                    input_command, 
-                    self.command_stored_in_buffer
+                    input_command
                 )
             )

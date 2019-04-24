@@ -35,13 +35,13 @@ def _get_data_from_db(incoming_data: str) -> (list, list):
         )
 
         sqlite3_client.connect()
-        return_data = sqlite3_client.command_interface("""{}""".format(incoming_data), None)
+        return_data = sqlite3_client.command_interface("""{}""".format(incoming_data))
 
         return [x[0] for x in sqlite3_client.cursor.description], return_data
 
 
     return_data = db_client.command_interface(
-        """{}""".format(incoming_data), None
+        """{}""".format(incoming_data)
     )
 
     return [x[0] for x in db_client.cursor.description], return_data

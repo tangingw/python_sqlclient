@@ -1,8 +1,8 @@
 import json
 import os
 import sys
-from interface.view import initial_interface
-from interface.view import database_interface
+from interface.view_new import initial_interface
+from interface.view_new import database_interface
 
 
 def main():
