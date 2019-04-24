@@ -63,7 +63,7 @@ class DataBaseEngine(object):
 
         self.conn.close()
 
-    def exec(self, sql_statement:str):
+    def execute(self, sql_statement:str):
 
         self.cursor.execute(sql_statement)
 
@@ -89,7 +89,7 @@ class DataBaseEngine(object):
                 SELECT DISTINCT TABLE_NAME FROM information_schema.TABLES;
             """
 
-        self.exec(retrieve_table_str)
+        self.execute(retrieve_table_str)
         return self.cursor.fetchall()
     
     def retrieve_column_name(self, table_name:str) -> List:
@@ -107,5 +107,5 @@ class DataBaseEngine(object):
                 FROM information_schema.COLUMNS WHERE TABLE_NAME = '{0}'
             """.format(table_name)
         
-        self.exec(retrieve_column_str)
+        self.execute(retrieve_column_str)
         return self.cursor.fetchall()

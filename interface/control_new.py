@@ -101,38 +101,36 @@ class DBControlInterface(DataBaseEngine):
 
                 return getattr(self, "do_{}".format(buffer_list)[0])(buffer_list[1:])
 
-            self.exec(self.command_stored_in_buffer)
+            self.execute(self.command_stored_in_buffer)
             return self.cursor.fetchall()
 
     def get_save(self, args_list: list):
 
-        if len(args_list) > 1:
-
-            self._save_query_to_file(
-                args_list[-1], #filename 
-                sql_command= " ".join(args_list[0:-1]) #sqlcommand
-            )
-
-        elif len(args_list) == 1:
+        if os.path.exists(args_list[0]):
+    
+            return "You Have saved your previous query to file: {0}".format(args_list[0])
         
-            if os.path.exists(args_list[0]):
+        else:
 
-                print("You Have saved your previous query to file: {0}".format(args_list[0]))
-            
-            else:
+            if len(args_list) > 1:
 
+                self._save_query_to_file(
+                    args_list[-1], #filename 
+                    sql_command= " ".join(args_list[0:-1]) #sqlcommand
+                )
+
+            elif len(args_list) == 1:
+        
                 self._save_query_to_file(
                     args_list[0], #filename
                     self.command_stored_in_buffer
                 )
 
+            return "File {} written successfully".format(args_list[0])
+
     def get_column(self, table_name: str):
 
-        #self._delay_column_output(
-        #    "column {}".format(" ".join(args_list))
-        #)
-
-        return self.retrieve_column_name(table_name)
+        return self.retrieve_column_name(table_name[0])
 
     def get_webapp(self):
 
@@ -142,11 +140,11 @@ class DBControlInterface(DataBaseEngine):
 
     def get_sql(self, input_command):
 
-        sql_regex = re.compile(r"^(?i)(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
+        sql_regex = re.compile(r"^(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
 
-        if sql_regex.match(input_command.split()[0]):
+        if sql_regex.match(input_command.split()[0].upper()):
 
-            self.exec(input_command)
+            self.execute(input_command)
             return self.cursor.fetchall()
 
         return "Not a valid SQL Expression!"
@@ -166,7 +164,7 @@ class DBControlInterface(DataBaseEngine):
 
                 return instance_method()
 
-            elif len(input_command_list) > 1:
+            elif len(input_command_list) > 1 and input_command_list[0] in ["save", "column"]:
 
                 return instance_method(input_command_list[1:])
 

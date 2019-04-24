@@ -4,5 +4,11 @@
         "username": "test123",
         "password": "yahoo12345",
         "db_name": "test_yahoo"
+    },
+    "radius": {
+        "server": "localhost",
+        "username": "radius",
+        "password": "radius123456",
+        "db_name": "radius"
     }
 }

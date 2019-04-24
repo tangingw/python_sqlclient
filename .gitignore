@@ -5,3 +5,4 @@ __pycache__/
 _test_sqlitedb/*.db
 csv_file/*.csv
 test.py
+config/test_config.json

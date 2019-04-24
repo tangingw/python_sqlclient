@@ -276,9 +276,9 @@ class DBInterface(_DBInternalInterface):
 
     def get_sql(self, input_command):
 
-        sql_regex = re.compile(r"^(?i)(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
+        sql_regex = re.compile(r"^(ALTER|CREATE|DELETE|INSERT|SELECT|UPDATE)$")
 
-        if sql_regex.match(input_command.split()[0]):
+        if sql_regex.match(input_command.split()[0].upper()):
 
             self._delay_result_output(input_command)
         

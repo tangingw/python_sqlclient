@@ -45,7 +45,7 @@ def _get_data_from_db(incoming_data: str) -> (list, list):
         )
 
         sqlite3_client.connect()
-        sqlite3_client.exec("""{}""".format(incoming_data))
+        sqlite3_client.execute("""{}""".format(incoming_data))
 
         if re.search(r'(?i)select.+', incoming_data):
 
@@ -53,7 +53,7 @@ def _get_data_from_db(incoming_data: str) -> (list, list):
 
     else:
 
-        db_client.exec("""{}""".format(incoming_data))
+        db_client.execute("""{}""".format(incoming_data))
         
         if re.search(r'(?i)select.+', incoming_data):
 
@@ -91,7 +91,7 @@ def post_command():
             )
 
             sqlite3_client.connect()
-            sqlite3_client.exec("""{}""".format(incoming_data))
+            sqlite3_client.execute("""{}""".format(incoming_data))
 
             if re.search(r'(?i)select.+', incoming_data):
 
@@ -99,7 +99,7 @@ def post_command():
 
         else:
 
-            db_client.exec("""{}""".format(incoming_data))
+            db_client.execute("""{}""".format(incoming_data))
             
             if re.search(r'(?i)select.+', incoming_data):
 

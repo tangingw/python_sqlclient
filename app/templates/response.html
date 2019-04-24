@@ -23,19 +23,26 @@
     <body>
         <h1>SQL Response</h1>
         <h2>The response based on your command</h2>
-        <table>
-            <tr>
-                {% for item in table_header %}
-                    <td>{{ item }}</td>
+
+        {% if db_response is string %}
+            
+            <p> {{ db_response }} </p>
+
+        {% elif db_response is sequence %}
+            <table>
+                <tr>
+                    {% for item in table_header %}
+                        <td>{{ item }}</td>
+                    {% endfor %}
+                </tr>
+                {% for response in db_response %}
+                <tr>
+                    {% for item in response %}
+                        <td>{{ item }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            {% for response in db_response %}
-            <tr>
-                {% for item in response %}
-                    <td>{{ item }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
+            </table>
+        {% endif %}
     </body>
 </html>
