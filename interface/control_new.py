@@ -159,8 +159,6 @@ class DBControlInterface(DataBaseEngine):
 
         input_command_list = input_command.split(" ")
 
-        #self.command_stored_in_buffer = command_stored_in_buffer
-
         if hasattr(self, "get_{}".format(input_command_list[0])):
 
             instance_method = getattr(self, 
