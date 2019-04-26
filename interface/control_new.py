@@ -1,13 +1,44 @@
 import csv
+import json
 import os
 import re
 from database.models import DataBaseEngine
 from typing import List
 
 
+def parse_lambda(key, value, func):
+
+    if value["parameters"]:
+
+        return lambda x: func(
+            """{}""".format(value["sql"]).format(x)
+        )
+
+    return lambda : func("""{}""".format(value["sql"]))
+
+
 class DBControlInterface(DataBaseEngine):
 
     command_stored_in_buffer = None
+    defined_attributes = None
+
+    if os.path.exists("config/command_def.json"):
+    
+        with open("config/command_def.json", "r") as def_file:
+
+            defined_attributes = json.loads(def_file.read())
+
+    def __init__(self, db_engine: str, db_nickname=None, sqlite3_filename=None):
+
+        for key, value in self.defined_attributes.items():
+            
+            setattr(
+                self,
+                "get_{}".format(key),
+                parse_lambda(key, value, self.get_sql)
+            )
+            
+        super().__init__(db_engine, db_nickname=db_nickname, sqlite3_filename=sqlite3_filename)
 
     def _write_to_file(self, filename: str, query_result: List):
 
@@ -166,11 +197,11 @@ class DBControlInterface(DataBaseEngine):
             )
 
             if len(input_command_list) == 1:
-
+                
                 return instance_method()
 
             elif len(input_command_list) > 1: 
-            
+                
                 if input_command_list[0] in ["save", "column"]:
 
                     return instance_method(input_command_list[1:])
@@ -178,6 +209,12 @@ class DBControlInterface(DataBaseEngine):
                 elif input_command_list[0] == "table":
 
                     return instance_method()
+
+                elif input_command_list[0] in [
+                    key for key in self.defined_attributes.keys() 
+                    if dict(self.defined_attributes)[key]["parameters"]]:
+                    
+                    return instance_method(input_command_list[1])
 
         return self.get_sql(input_command)
 
@@ -243,14 +280,16 @@ class DBInterface(DBControlInterface):
 
     def _get_output(self, data_from_db=None, delay_mode: bool=False, line_to_display: int=10):
 
-        print("\n")
-
+        #print("\n")
         if isinstance(data_from_db, str):
 
-            print("{}\n".format(data_from_db))
+            if len(data_from_db) > 0:
+
+                print("{}\n".format(data_from_db))
         
         elif isinstance(data_from_db, tuple):
 
+            print("\n")
             table_header = "|".join([desc[0] for desc in self.cursor.description])
 
             print(table_header)
@@ -273,7 +312,11 @@ class DBInterface(DBControlInterface):
 
         self.command_stored_in_buffer = command_stored_in_buffer
 
-        if input_command.find("|") != -1:
+        if len(input_command) == 0:
+
+            pass
+
+        elif input_command.find("|") != -1:
 
             #self.exec(input_command.split("|")[0])
             self._get_output(
@@ -291,3 +334,5 @@ class DBInterface(DBControlInterface):
                     input_command
                 )
             )
+
+    
