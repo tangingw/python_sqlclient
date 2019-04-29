@@ -49,7 +49,7 @@ class ControlTest(unittest.TestCase):
             tuple
         )
 
-    def test_Command(self):
+    """def test_Command(self):
 
         command_dict = {
             "db": list,
@@ -71,7 +71,6 @@ class ControlTest(unittest.TestCase):
                 self.assertIsInstance(
                     self.db.command_interface(
                         value[0],
-                        None
                     ),
                     value[1]
                 )
@@ -79,11 +78,12 @@ class ControlTest(unittest.TestCase):
             else:
                 self.assertIsInstance(
                     self.db.command_interface(
-                        key, None
+                        key
                     ),
                     value
                 )
-
+    """
+    
     def test_save(self):
 
         self.db.get_save(["select * from radacct", "test_radacct.csv"])
@@ -94,6 +94,18 @@ class ControlTest(unittest.TestCase):
             os.path.exists("csv_file/test_radacct.csv")
         )
 
+    def test_nas(self):
+    
+        self.assertIsInstance(
+            self.db.get_nas(),
+            tuple   
+        )
+    
+    def test_demo(self):
         
+        self.assertIsInstance(
+            self.db.get_demo("radacct"),
+            tuple   
+        )
 
 unittest.main()

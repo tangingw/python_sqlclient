@@ -1,0 +1,10 @@
+{
+    "nas": {
+        "sql": "select * from nas;",
+        "parameters": false
+    },
+    "demo": {
+        "sql": "select * from {};",
+        "parameters": true
+    }
+}
