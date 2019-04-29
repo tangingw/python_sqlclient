@@ -20,13 +20,13 @@ class DataBaseEngine(object):
 
         raise FileNotFoundError
 
-    def __init__(self, db_engine: str, db_nickname=None, sqlite3_filename=None):
+    def __init__(self, db_engine: str, db_nickname=None):
 
         self.conn = None
         self.cursor = None
         self.db_engine = db_engine
         self.db_nickname = db_nickname
-        self.sqlite3_filename = sqlite3_filename
+        #self.sqlite3_filename = sqlite3_filename
 
     def connect(self):
 
@@ -36,7 +36,9 @@ class DataBaseEngine(object):
         
             if self.db_engine == "sqlite3":
 
-                self.conn = db_module.connect(self.sqlite3_filename)
+                self.conn = db_module.connect(
+                    self.configuration[self.db_nickname]["db_name"]
+                )
 
             else:
 

@@ -7,7 +7,7 @@ import sys
 def init_install():
 
     db_meta = dict()
-    #db_type = input("Please enter your db_type: ")
+    db_type = input("Please enter your db_type: ")
     
     db_nickname = input("Please give a nickname for your definition: ")
     
@@ -22,10 +22,14 @@ def init_install():
 
     temp = {}
 
-    temp["server"] = input("Please enter your db_hostname: ")
-    temp["username"] = input("Please enter your db_username: ")
-    temp["password"] = getpass.getpass("Please enter your db_password: ")
     temp["db_name"] = input("Please enter your db_name: ")
+
+    if db_type != "sqlite3":
+    
+        temp["server"] = input("Please enter your db_hostname: ")
+        temp["username"] = input("Please enter your db_username: ")
+        temp["password"] = getpass.getpass("Please enter your db_password: ")
+    
 
     count = 0
     empty_key = []
@@ -92,11 +96,11 @@ def init_db():
 
     else:
 
-        if re.search(r"^(?i)init$", sys.argv[-1]) and len(sys.argv) == 1:
+        if re.search(r"^(?i)init$", sys.argv[-1]) and len(sys.argv) == 2:
 
             init_install()
         
-        elif re.search(r"^(?i)del$", sys.argv[1]) and len(sys.argv) == 2:
+        elif re.search(r"^(?i)del$", sys.argv[1]) and len(sys.argv) == 3:
 
             delete_db_meta(sys.argv[-1])
     

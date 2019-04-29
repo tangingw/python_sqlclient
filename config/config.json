@@ -10,5 +10,8 @@
         "username": "radius",
         "password": "radius123456",
         "db_name": "radius"
+    },
+    "sqlite3_person": {
+        "db_name": "test_sqlitedb/test.db"
     }
 }

@@ -249,7 +249,7 @@ class DBInterface(DBControlInterface):
 
             print("{}\n".format(data_from_db))
         
-        elif isinstance(data_from_db, tuple):
+        elif isinstance(data_from_db, tuple) or isinstance(data_from_db, list):
 
             table_header = "|".join([desc[0] for desc in self.cursor.description])
 
@@ -275,7 +275,6 @@ class DBInterface(DBControlInterface):
 
         if input_command.find("|") != -1:
 
-            #self.exec(input_command.split("|")[0])
             self._get_output(
                 data_from_db=self.command_interface(
                     input_command.split("|")[0], 
