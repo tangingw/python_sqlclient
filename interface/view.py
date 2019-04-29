@@ -85,16 +85,9 @@ def database_interface(database_type: str, db_nickname: str=None):
         received_command = front_prompt(database_type)
 
     os.environ["DB_TYPE"] = database_type
-
-    if database_type == "sqlite3":
-
-        db_client = DBInterface("sqlite3", sqlite3_filename=db_nickname)
-        os.environ["DB_NAME"] = db_nickname
-
-    else:        
-    
-        db_client = DBInterface(database_type, db_nickname=db_nickname)
-        os.environ["DB_NAME"] = db_nickname
+ 
+    db_client = DBInterface(database_type, db_nickname=db_nickname)
+    os.environ["DB_NAME"] = db_nickname
 
     db_client.connect()
 
@@ -108,7 +101,8 @@ def database_interface(database_type: str, db_nickname: str=None):
 
             else:
 
-                db_client.command_interface(received_command, command_buffer)
+                #db_client.command_interface(received_command, command_buffer)
+                db_client.get_result_output(received_command, command_buffer)
 
         except Exception as error:
 

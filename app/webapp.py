@@ -5,7 +5,7 @@ import time
 from flask import Flask, request
 from flask import jsonify, render_template
 #from database.models import DataBaseEngine
-from interface.control_new import DBControlInterface
+from interface.control import DBControlInterface
 from chart.chart import generate_chart
 
 
@@ -30,15 +30,13 @@ def _get_data_from_db(incoming_data: str) -> (list, list):
     if os.environ["DB_TYPE"] == "sqlite3":
 
         sqlite3_client = DBControlInterface(
-            "sqlite3", 
-            sqlite3_filename=os.environ["DB_NAME"]
-        )
-
+            "sqlite3", db_nickname=os.environ["DB_NAME"]
+        ) 
+        
         sqlite3_client.connect()
         return_data = sqlite3_client.command_interface("""{}""".format(incoming_data))
 
         return [x[0] for x in sqlite3_client.cursor.description], return_data
-
 
     return_data = db_client.command_interface(
         """{}""".format(incoming_data)

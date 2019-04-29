@@ -29,7 +29,6 @@ def init_install():
         temp["server"] = input("Please enter your db_hostname: ")
         temp["username"] = input("Please enter your db_username: ")
         temp["password"] = getpass.getpass("Please enter your db_password: ")
-    
 
     count = 0
     empty_key = []
@@ -39,8 +38,6 @@ def init_install():
         if not value or len(value) == 0:
 
             empty_key.append(key)
-            print("{} is empty".format(key))
-
             count += 1
     
     if count > 0:
@@ -89,24 +86,17 @@ def delete_db_meta(db_nickname):
 
 def init_db():
 
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
+    if re.search(r"^(?i)init$", sys.argv[-1]) and len(sys.argv) == 2:
 
-        print("python init.py init")
-        print("python init.py del <db_nickname>")
+        init_install()
+    
+    elif re.search(r"^(?i)del$", sys.argv[1]) and len(sys.argv) == 3:
+
+        delete_db_meta(sys.argv[-1])
 
     else:
 
-        if re.search(r"^(?i)init$", sys.argv[-1]) and len(sys.argv) == 2:
-
-            init_install()
-        
-        elif re.search(r"^(?i)del$", sys.argv[1]) and len(sys.argv) == 3:
-
-            delete_db_meta(sys.argv[-1])
-    
-        else:
-
-            print("Invalid parameters")
+        print("Invalid parameters")
 
 
-init_db()
+#init_db()
