@@ -2,7 +2,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-_test_sqlitedb/*.db
+test_sqlitedb/*.db
 csv_file/*.csv
 test.py
 test_args.py

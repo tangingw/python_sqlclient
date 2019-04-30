@@ -1,7 +1,7 @@
 import os
 import unittest
 import time
-from interface.control_new import DBControlInterface
+from interface.control import DBControlInterface
 
 
 class ControlTest(unittest.TestCase):
@@ -49,7 +49,7 @@ class ControlTest(unittest.TestCase):
             tuple
         )
 
-    """def test_Command(self):
+    def test_Command(self):
 
         command_dict = {
             "db": list,
@@ -82,7 +82,6 @@ class ControlTest(unittest.TestCase):
                     ),
                     value
                 )
-    """
     
     def test_save(self):
 
@@ -107,5 +106,3 @@ class ControlTest(unittest.TestCase):
             self.db.get_demo("radacct"),
             tuple   
         )
-
-unittest.main()

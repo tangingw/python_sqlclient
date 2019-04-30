@@ -1,7 +1,7 @@
 import re
 
 
-def generate_colours(colour_name: str=None, rgb_tuple: tuple=(), alpha: int=1.0):
+def generate_colours(colour_name: str=None, rgb_code: tuple=(), alpha: int=1.0):
 
     defined_color_dict = {
         "black": (0,0,0,alpha), "white": (255,255,255,alpha),
@@ -135,10 +135,10 @@ def generate_colours(colour_name: str=None, rgb_tuple: tuple=(), alpha: int=1.0)
             )
         )
 
-    if len(rgb_tuple) == 3:
+    if len(rgb_code) == 3:
 
         return 'rgba({0},{1})'.format(
-            ','.join([str(x) for x in rgb_tuple]), alpha
+            ','.join([str(x) for x in rgb_code]), alpha
         )
 
     return defined_color_dict
