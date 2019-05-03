@@ -168,6 +168,11 @@ class DBControlInterface(DataBaseEngine):
 
         return self.retrieve_column_name(table_name[0])
 
+    def get_rollback(self):
+
+        self.rollback()
+        return "Rollback is trigger!"
+
     def get_webapp(self):
 
         from app.webapp import app
@@ -206,9 +211,9 @@ class DBControlInterface(DataBaseEngine):
 
                     return instance_method(input_command_list[1:])
 
-                elif input_command_list[0] == "table":
+                #elif input_command_list[0] == "table":
 
-                    return instance_method()
+                #    return instance_method()
 
                 elif input_command_list[0] in [
                     key for key in self.defined_attributes.keys() 
