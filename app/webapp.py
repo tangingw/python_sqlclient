@@ -50,6 +50,27 @@ def get_debug():
 
     return "Webapp is running"
 
+@app.route("/sql_api", methods=["POST", "GET"])
+def api_post_command():
+
+    if request.method == "POST":
+
+        incoming_data = request.get_json()["command"]
+        table_header, db_response = _get_data_from_db(incoming_data)
+
+        return jsonify(
+            {
+                "status": 200,
+                "sql_response": dict(zip(table_header, db_response))
+            }
+        )
+
+    return jsonify(
+        {
+            "status": 403,
+            "message": "Invalid request"
+        }
+    )
 
 @app.route("/sql_webapp", methods=["POST", "GET"])
 def post_command():
