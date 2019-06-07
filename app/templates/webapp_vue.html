@@ -1,0 +1,210 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://unpkg.com/frappe-datatable@1.13.1/dist/frappe-datatable.min.css" rel="stylesheet">
+
+        <!-- create the container element -->
+        <!-- include the dependencies -->
+        <script src="https://unpkg.com/sortablejs@1.7.0/Sortable.min.js"></script>
+        <script src="https://unpkg.com/clusterize.js@0.18.0/clusterize.min.js"></script>
+        <!-- include the lib -->
+        <script src="https://unpkg.com/frappe-datatable@1.13.1/dist/frappe-datatable.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+        <title>My Universal SQL Client WebApp</title>
+        <style> 
+            body {
+                font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+            }
+            #result #counter {
+                font-family: Tahoma, Geneva, sans-serif;
+            }
+            textarea {
+                /*width: auto;*/
+                max-width: 100%;
+                min-width: 60%;
+                /*height: auto;*/
+                min-height: 300px;
+                max-height: 500px;
+                padding: 12px 20px;
+                box-sizing: border-box;
+                border: 2px solid #ccc;
+                border-radius: 4px;
+                background-color: #f8f8f8;
+                font-size: 16px;
+                resize: none;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>My Universal SQL Client WebApp</h1>
+        <h2>The current DB is: {{ db_name }}</h2>
+        <div id="app">
+            <h2 v-if="input_seen">Please enter your command below</h2>
+            <textarea v-model="message" placeholder="test" v-if="input_seen"></textarea>
+            <br v-if="input_seen"/>
+            <br v-if="input_seen"/>
+            <button v-on:click="run_method" v-if="input_seen">Click me!</button>
+            <img src="/static/loading_2.gif" v-if="animation">
+            <br v-if="input_seen"/>
+            <br v-if="input_seen"/>
+            <button v-if="seen" v-on:click="load_previous_page">Previous</button>
+            <button v-if="seen" v-on:click="load_next_page">Next</button>
+            <button v-if="seen" v-on:click="toggle_input">Toggle Input</button>
+            <br v-if="seen"/>
+            <br v-if="seen"/>
+        </div>
+        <div id="result"></div>
+        <br/>
+        <div id="counter"></div>
+        <script>
+
+            var app = new Vue(
+                {
+                    el: "#app",
+                    data: {
+                        seen: false,
+                        input_seen: true,
+                        animation:false,
+                        message: null,
+                        current_index: 0,
+                        //previous_table: false,
+                        item_per_page: 25,
+                        total_length: 0,
+                        previous_command: null
+                    },
+                    methods: {
+                        generate_new_table: function(header, result) {
+                            
+                            let data_row = null
+
+                            if (result.length > 0) {
+
+                                data_row = []
+
+                                for (let i = 0; i < result.length; i++) {
+
+                                    let temp_data = []
+
+                                    for (let j = 0; j < header.length; j++) {
+
+                                        temp_data.push(result[i][header[j]])
+                                    }
+
+                                    data_row.push(temp_data)
+                                }
+
+                            }
+                            let datatable = new DataTable(
+                                "#result", {
+                                    columns: header,
+                                    data: data_row,
+                                }
+                            )
+
+                            document.getElementById("counter").innerHTML = "Current Page: " + ((this.current_index/this.item_per_page) + 1)  + "/" + Math.floor((this.total_length/this.item_per_page) + 1) 
+                            
+                            this.seen = true
+                            this.previous_table = true
+                        },
+                        run_method: function () {
+
+                            if (this.message != this.previous_command) {
+                                
+                                this.animation = true
+                                this.current_index = 0
+
+                            }
+
+                            this.input_seen = false
+                            let result_dom = document.getElementById("result")
+                            
+                            axios(
+                                {
+                                    method: 'post',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    url: "/sql_api", 
+                                    data: {
+                                        sql_command: this.message,
+                                        current_index: this.current_index,
+                                        item_per_page: this.item_per_page
+                                    }
+                                }
+                            ).then(
+                                response => {
+
+                                    if (this.animation == true) {
+
+                                        this.animation = false
+                                    }
+
+                                    response_data = response.data
+
+                                    if (response_data.status == 200) {
+
+                                        this.input_seen = false
+                                        this.previous_command = this.message
+
+                                        this.total_length = response_data.sql_length
+                                        this.generate_new_table(response_data.sql_header, response_data.sql_response)
+
+                                    } else if (response_data.status == 500) {
+
+                                        result_dom.innerHTML = "Error: " + response_data.error_msg
+
+                                    }
+                                }
+                            ).catch(
+                                error => {
+
+                                    result_dom.innerHTML = "Error: " + error
+
+                                }
+                            )
+                        },
+                        load_previous_page: function() {
+                            
+                            if (Math.floor(this.current_index/this.item_per_page) + 1 >= 2) {
+
+                                this.current_index -= this.item_per_page
+                                this.run_method()
+                            }
+                        },
+                        load_next_page: function () {
+
+                            if (Math.floor(this.current_index/this.item_per_page) + 1 < Math.floor(this.total_length/this.item_per_page) + 1) {
+
+                                this.current_index += this.item_per_page
+                                this.run_method()
+                                
+                            }
+                        },
+                        toggle_input: function() {
+
+                            let currentState = this.input_seen
+                            this.input_seen = !currentState
+                            this.seen = currentState
+
+                            let documentObjectID = ["result", "counter"]
+    
+                            for (let i = 0; i < documentObjectID.length; i++) {
+
+                                let result_dom = document.getElementById(documentObjectID[i])
+
+                                while (result_dom.hasChildNodes()) {
+
+                                    result_dom.removeChild(result_dom.firstChild);
+
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+        </script>
+    </body>
+</html>

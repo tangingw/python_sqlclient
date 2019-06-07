@@ -1,3 +1,5 @@
 flask
 pymssql
 mysqlclient
+falcon
+waitress

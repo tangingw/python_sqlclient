@@ -1,0 +1,216 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/frappe-charts@1.1.0/dist/frappe-charts.min.iife.js"></script>
+
+        <title>My Universal SQL Client WebApp</title>
+        <style> 
+            body {
+                font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif; 
+            }
+            #result #counter #chart{
+                font-family: Tahoma, Geneva, sans-serif;
+            }
+            textarea {
+                /*width: auto;*/
+                max-width: 100%;
+                min-width: 60%;
+                /*height: auto;*/
+                min-height: 300px;
+                max-height: 500px;
+                padding: 12px 20px;
+                box-sizing: border-box;
+                border: 2px solid #ccc;
+                border-radius: 4px;
+                background-color: #f8f8f8;
+                font-size: 16px;
+                resize: none;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>My Universal SQL Client WebApp</h1>
+        <h2>The current DB is: {{ db_name }}</h2>
+        <div id="app">
+            <h3 v-if="flag.input_seen">Title: 
+                <input v-model="chartData.title" placeholder="title" v-if="flag.input_seen"></input>
+            </h3>
+            <h3 v-if="flag.input_seen">X-Axis Unit (if any): 
+                <input v-model="chartData.xAxisUnit" placeholder="" v-if="flag.input_seen"></input>
+            </h3>
+            <h3 v-if="flag.input_seen">y-Axis Unit (if any): 
+                <input v-model="chartData.yAxisUnit" placeholder="" v-if="flag.input_seen"></input>
+            </h3>
+            <h3 v-if="flag.input_seen">Chart Type: 
+                <select name="chart" v-model="chartData.type">
+                    <option value="" disabled="disabled"  style="display:none" selected="selected">Please select chart type</option>
+                    <option value="bar">Bar</option>
+                    <option value="line">Line</option>
+                    <option value="pie">Pie</option>
+                    <option value="percentage">Percentage</option>
+                    <!--option value="axis-mixed">Axis-Mixed</option-->
+                </select>
+            </h3>
+            <h3 v-if="flag.input_seen">Please enter your command below</h3>
+            <textarea v-model="message" placeholder="your SQL command" v-if="flag.input_seen"></textarea>
+            <br v-if="flag.input_seen"/>
+            <br v-if="flag.input_seen"/>
+            <button v-on:click="run_method" v-if="flag.input_seen">Submit</button>
+            <br v-if="flag.input_seen"/>
+            <br v-if="flag.input_seen"/>
+            <img src="/static/loading_2.gif" v-if="flag.animation">
+            <button v-if="flag.seen" v-on:click="toggle_input">Toggle Input</button>
+            <button v-if="flag.seen" v-on:click="export_image">Export</button>
+            <br v-if="flag.seen"/>
+            <br v-if="flag.seen"/>
+        </div>
+        <div id="result"></div>
+        <div id="chart"></div>
+        <script>
+
+            let sort_data = function(response_data) {
+
+                let chart_data_label = new Array()
+                let chart_datasets = new Array()
+                
+                for (let j = 1; j < response_data.sql_header.length; j++) {
+
+                    chart_datasets.push(
+                        {
+                            name: response_data.sql_header[j],
+                            values: new Array()
+                        }
+                    )
+                }
+
+                for (let i = 0; i < response_data.sql_response.length; i++) {
+
+                    chart_data_label.push(response_data.sql_response[i][0])
+
+                    for (let j = 1; j < response_data.sql_response[i].length ; j++) {
+
+                        chart_datasets[j - 1].values.push(
+                            response_data.sql_response[i][j]
+                        )
+                    }
+                }
+
+                return {
+                    labels: chart_data_label,
+                    datasets: chart_datasets
+                }
+
+            }
+
+            var app = new Vue(
+                {
+                    el: "#app",
+                    data: {
+                        flag: {
+                            seen: false,
+                            input_seen: true,
+                            animation: false,
+                        },
+                        message: null,
+                        chartData: {
+                            type: "bar",
+                            title: "My Awesome Chart",
+                            xAxisUnit: '',
+                            yAxisUnit: ''
+                        },
+                        chartObject: null
+                    },
+                    methods: {
+                        run_method: function () {
+                            
+                            this.flag.input_seen = false
+                            this.flag.animation = true
+                            let result_dom = document.getElementById("result")
+
+                            axios(
+                                {
+                                    method: 'post',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    url: "/sql_api", 
+                                    data: {
+                                        sql_command: this.message,
+                                    }
+                                }
+                            ).then(
+                                response => {
+                                    
+                                    if (this.flag.animation == true) {
+
+                                        this.flag.animation = false
+
+                                    }
+
+                                    response_data = response.data
+
+                                    if (response_data.status == 200) {
+
+                                        this.flag.input_seen = false
+                                        this.chartObject = new frappe.Chart(
+                                            '#chart',
+                                            {
+                                                data: sort_data(response_data),
+                                                title: this.chartData.title,
+                                                type: this.chartData.type,
+                                                height: 480,
+                                                tooltipOptions: {
+                                                    formatTooltipX: d => d + ' ' + this.chartData.xAxisUnit,
+                                                    formatTooltipY: d => d + ' ' + this.chartData.yAxisUnit,
+                                                }
+                                            }
+                                        )
+
+                                    } else if (response_data.status == 500) {
+
+                                        result_dom.innerHTML = "APIError: " + response_data.error_msg
+                                    }
+
+                                    this.flag.seen = true                                 
+                                }
+                            ).catch(
+                                error => {
+                                    this.flag.seen = true
+                                    result_dom.innerHTML = "Error: " + error
+
+                                }
+                            )
+                        },
+                        export_image: function() {
+
+                            this.chartObject.export()
+
+                        },
+                        toggle_input: function() {
+
+                            let currentState = this.flag.input_seen
+                            this.flag.input_seen = !currentState
+                            this.flag.seen = currentState
+
+                            let documentObjectID = ["chart", "result"]
+
+                            for (let i = 0; i < documentObjectID.length; i++) {
+
+                                let dom_object = document.getElementById(documentObjectID[i])
+
+                                while (dom_object.hasChildNodes()) {
+
+                                    dom_object.removeChild(dom_object.firstChild);
+
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+        </script>
+    </body>
+</html>

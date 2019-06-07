@@ -51,14 +51,24 @@ def main():
     
     elif len(sys.argv) > 3 and len(sys.argv) <= 4:
 
-        if sys.argv[1] == "webapp":
+        os.environ["DB_TYPE"] = sql_lib_definition_dict[sys.argv[2]]
+        os.environ["DB_NAME"] = sys.argv[3]
 
-            os.environ["DB_TYPE"] = sql_lib_definition_dict[sys.argv[2]]
-            os.environ["DB_NAME"] = sys.argv[3]
+        if sys.argv[1] == "webapp":
         
             from app.webapp import app
 
             app.run(host="127.0.0.1", port=5000)
+        
+        elif sys.argv[1] == "falcon":
+
+            import waitress
+            from app.webapp_falcon import app
+
+            waitress.serve(app, host='127.0.0.1', port=8041, url_scheme='https')
+        
+        del os.environ["DB_TYPE"]
+        del os.environ["DB_NAME"]
 
     else:
 
