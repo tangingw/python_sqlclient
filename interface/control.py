@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import re
+import waitress
 from database.models import DataBaseEngine
 from typing import List
 
@@ -189,6 +190,12 @@ class DBControlInterface(DataBaseEngine):
             return self.cursor.fetchall()
 
         return "Not a valid SQL Expression!"
+
+    def get_falcon(self):
+
+        from app.webapp_falcon import app
+
+        waitress.serve(app, host='127.0.0.1', port=8041, url_scheme='https')
 
     #def command_interface(self, input_command: str, command_stored_in_buffer: str):
     def command_interface(self, input_command: str):

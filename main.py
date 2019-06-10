@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import waitress
 from interface.view import initial_interface
 from interface.view import database_interface
 from tools.init import init_db
@@ -62,7 +63,6 @@ def main():
         
         elif sys.argv[1] == "falcon":
 
-            import waitress
             from app.webapp_falcon import app
 
             waitress.serve(app, host='127.0.0.1', port=8041, url_scheme='https')
