@@ -181,7 +181,6 @@ The ```init.py``` script will write to config file based on your input
 
    ```unix
    prompt> select * from yahoo_123;
-
    ```
 
 ## Tested Database Connector
@@ -189,6 +188,24 @@ The ```init.py``` script will write to config file based on your input
 1. SQLite3
 2. [MySQL](https://github.com/PyMySQL/mysqlclient-python)
 3. [MsSQL](https://github.com/pymssql/pymssql)
+
+## Interesting Stuff
+
+To experienbce the power of Falcon loaded with the shield of Vue
+
+1. On the prompt, just enter your usual SQL command:
+
+    ```unix
+    prompt> falcon
+    ```
+
+2. Go to the your browser and enter ```127.0.0.1:8041/sql_webapp_vue```
+
+3. Enter the usual SQL command
+
+   ```sql
+   select * from yahoo_123
+   ```
 
 ## Things to Do
 
