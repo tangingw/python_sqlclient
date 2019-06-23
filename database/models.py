@@ -69,7 +69,9 @@ class DataBaseEngine(object):
 
         self.cursor.execute(sql_statement)
 
-        if re.search(r"(?i)(CREATE|INSERT|UPDATE|DELETE|ALTER|DELELE).+", sql_statement):
+        sql_regex = re.compile(r"^(?i)(CREATE|ALTER|UPDATE|INSERT|DELETE)$")
+
+        if sql_regex.match(sql_statement.split()[0]):
 
             self.conn.commit()
     
