@@ -13,5 +13,8 @@
     },
     "sqlite3_person": {
         "db_name": "test_sqlitedb/test.db"
+    },
+    "city_line":{
+        "db_name": "test_sqlitedb/cities_lines.db"
     }
 }

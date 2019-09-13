@@ -155,15 +155,17 @@
                                     } else if (response_data.status == 500) {
 
                                         result_dom.innerHTML = "Error: " + response_data.error_msg
-
+                                        this.input_seen = true
                                     }
                                 }
                             ).catch(
                                 error => {
 
                                     result_dom.innerHTML = "Error: " + error
-
+                                    this.input_seen = true
                                 }
+                                
+
                             )
                         },
                         load_previous_page: function() {
