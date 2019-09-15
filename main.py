@@ -14,11 +14,12 @@ def db_main(sql_lib_definition_dict: dict):
 
     print("\nWelcome to the Universal SQL Client:\n")
 
-    if len(sys.argv) < 3:
+    if len(sys.argv) == 2:
 
-        database_type, database_nickname = initial_interface()
+        database_type = sql_lib_definition_dict[sys.argv[1]]
+        database_nickname = initial_interface()
 
-    else:
+    elif len(sys.argv) > 2: 
 
         database_type = sql_lib_definition_dict[sys.argv[1]]
         database_nickname = sys.argv[2]

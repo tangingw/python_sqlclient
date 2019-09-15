@@ -32,9 +32,7 @@ def front_prompt(database_type: str=None, database_nickname: str=None):
         return platform_prompt_str
 
 
-    default_prompt_str = "{0} ".format(
-        str(time.ctime(time.time())),
-    )
+    default_prompt_str = f"{str(time.ctime(time.time()))} "
 
     
     if database_type:
@@ -84,11 +82,10 @@ def database_interface(database_type: str, db_nickname: str=None):
 
         received_command = front_prompt(database_type)
 
-    os.environ["DB_TYPE"] = database_type
- 
-    db_client = DBInterface(database_type, db_nickname=db_nickname)
     os.environ["DB_NAME"] = db_nickname
+    os.environ["DB_TYPE"] = database_type
 
+    db_client = DBInterface(database_type, db_nickname=db_nickname)
     db_client.connect()
 
     while (received_command not in exit_command_list):
@@ -123,7 +120,7 @@ def initial_interface() -> str:
 
         if re.search(r"^connect\s([\w\s])+\s?([\w\s])*$", command):
 
-            return command.split(" ")[1:]
+            return command.split(" ")[1]
 
         else:
 

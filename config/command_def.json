@@ -1,10 +1,22 @@
 {
-    "nas": {
-        "sql": "select * from nas;",
-        "parameters": false
+    "radius": {
+        "nas": {
+            "sql": "select * from nas;",
+            "parameters": false
+        },
+        "demo": {
+            "sql": "select * from {};",
+            "parameters": true
+        }
     },
-    "demo": {
-        "sql": "select * from {};",
-        "parameters": true
+    "city_line": {
+        "city": {
+            "sql": "select * from cities",
+            "parameters": false
+        },
+        "track_line": {
+            "sql": "select * from track_lines",
+            "parameters": false
+        }
     }
 }

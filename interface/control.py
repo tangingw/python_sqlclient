@@ -31,14 +31,16 @@ class DBControlInterface(DataBaseEngine):
 
     def __init__(self, db_engine: str, db_nickname=None):
 
-        for key, value in self.defined_attributes.items():
-            
-            setattr(
-                self,
-                "get_{}".format(key),
-                parse_lambda(key, value, self.get_sql)
-            )
-            
+        if db_nickname:
+
+            for key, value in self.defined_attributes[db_nickname].items():
+                
+                setattr(
+                    self,
+                    "get_{}".format(key),
+                    parse_lambda(key, value, self.get_sql)
+                )
+                
         super().__init__(db_engine, db_nickname=db_nickname)
 
     def _write_to_file(self, filename: str, query_result: List):
