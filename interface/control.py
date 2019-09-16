@@ -7,7 +7,7 @@ from database.models import DataBaseEngine
 from typing import List
 
 
-def parse_lambda(key, value, func):
+def parse_lambda(key: str, value: dict, func):
 
     if value["parameters"]:
 
@@ -199,7 +199,6 @@ class DBControlInterface(DataBaseEngine):
 
         waitress.serve(app, host='127.0.0.1', port=8041, url_scheme='https')
 
-    #def command_interface(self, input_command: str, command_stored_in_buffer: str):
     def command_interface(self, input_command: str):
 
         input_command_list = input_command.split(" ")
@@ -237,9 +236,7 @@ class DBInterface(DBControlInterface):
 
     def _delay_mode(self, data_from_table: List, line_to_display=20):
 
-        data_length = len(data_from_table)
-
-        if data_length < line_to_display:
+        if len(data_from_table) < line_to_display:
 
             for data in data_from_table:
 
@@ -294,7 +291,6 @@ class DBInterface(DBControlInterface):
 
     def _get_output(self, data_from_db=None, delay_mode: bool=False, line_to_display: int=10):
 
-        #print("\n")
         if isinstance(data_from_db, str):
 
             if len(data_from_db) > 0:
@@ -303,9 +299,9 @@ class DBInterface(DBControlInterface):
         
         elif isinstance(data_from_db, tuple) or isinstance(data_from_db, list):
 
-            print("\n")
             table_header = "|".join([desc[0] for desc in self.cursor.description])
 
+            print("\n")
             print(table_header)
             print("_" * len(table_header))
 
@@ -347,5 +343,3 @@ class DBInterface(DBControlInterface):
                     input_command
                 )
             )
-
-    

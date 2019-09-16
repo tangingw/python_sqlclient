@@ -55,13 +55,25 @@ def api_post_command():
 
     if request.method == "POST":
 
-        incoming_data = request.get_json()["command"]
-        table_header, db_response = _get_data_from_db(incoming_data)
+        incoming_data = request.get_json()
+        incoming_sql_statement = incoming_data["sql_command"]
+
+        table_header, db_response = _get_data_from_db(incoming_sql_statement)
+
+        db_response_list = [
+            dict(zip(table_header, db_data)) for db_data in db_response
+        ]
+
+        if ("item_per_page" in incoming_data.keys()) and ("current_index" in incoming_data.keys()):
+
+            current_index = incoming_data["current_index"]
+            item_per_page = incoming_data["item_per_page"]
+            db_response_list = db_response_list[current_index: current_index + item_per_page]
 
         return jsonify(
             {
                 "status": 200,
-                "sql_response": dict(zip(table_header, db_response))
+                "sql_response": db_response_list
             }
         )
 
