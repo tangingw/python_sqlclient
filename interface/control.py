@@ -31,9 +31,11 @@ class DBControlInterface(DataBaseEngine):
 
     def __init__(self, db_engine: str, db_nickname=None):
 
-        if db_nickname:
+        self.db_nickname = db_nickname
 
-            for key, value in self.defined_attributes[db_nickname].items():
+        if self.db_nickname:
+
+            for key, value in self.defined_attributes[self.db_nickname].items():
                 
                 setattr(
                     self,
@@ -41,7 +43,7 @@ class DBControlInterface(DataBaseEngine):
                     parse_lambda(key, value, self.get_sql)
                 )
                 
-        super().__init__(db_engine, db_nickname=db_nickname)
+        super().__init__(db_engine, db_nickname=self.db_nickname)
 
     def _write_to_file(self, filename: str, query_result: List):
 
@@ -224,8 +226,8 @@ class DBControlInterface(DataBaseEngine):
                 #    return instance_method()
 
                 elif input_command_list[0] in [
-                    key for key in self.defined_attributes.keys() 
-                    if dict(self.defined_attributes)[key]["parameters"]]:
+                    key for key in self.defined_attributes[self.db_nickname].keys() 
+                    if dict(self.defined_attributes[self.db_nickname])[key]["parameters"]]:
                     
                     return instance_method(input_command_list[1])
 

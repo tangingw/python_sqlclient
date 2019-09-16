@@ -116,3 +116,22 @@ class TestWebAppFlask(unittest.TestCase):
         self.assertEqual(
             len(result.json["sql_response"]), current_item_page
         )
+
+    def test_webapp_sql_api_post_command(self):
+
+        current_item_page = 7
+        
+        result_post = self.app.post(
+            "/sql_api", 
+            data=json.dumps(
+                {
+                    "sql_command": "table",
+                    "current_index": 0,
+                    "item_per_page": current_item_page 
+                }
+            ),
+            content_type="application/json"
+        )
+
+        self.assertEqual(result_post.status_code, 200)
+        self.assertEqual(len(result_post.json["sql_response"]), current_item_page)

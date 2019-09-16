@@ -14,9 +14,9 @@
             "sql": "select * from cities",
             "parameters": false
         },
-        "track_line": {
-            "sql": "select * from track_lines",
-            "parameters": false
+        "any_table": {
+            "sql": "select * from {}",
+            "parameters": true
         }
     }
 }
