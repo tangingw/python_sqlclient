@@ -2,12 +2,12 @@ import csv
 import json
 import os
 import re
+from typing import List
 import waitress
 from database.models import DataBaseEngine
-from typing import List
 
 
-def parse_lambda(key: str, value: dict, func):
+def parse_lambda(value: dict, func):
 
     if value["parameters"]:
 
@@ -15,7 +15,7 @@ def parse_lambda(key: str, value: dict, func):
             """{}""".format(value["sql"]).format(x)
         )
 
-    return lambda : func("""{}""".format(value["sql"]))
+    return lambda: func("""{}""".format(value["sql"]))
 
 
 class DBControlInterface(DataBaseEngine):
@@ -24,7 +24,7 @@ class DBControlInterface(DataBaseEngine):
     defined_attributes = None
 
     if os.path.exists("config/command_def.json"):
-    
+
         with open("config/command_def.json", "r") as def_file:
 
             defined_attributes = json.loads(def_file.read())
@@ -36,13 +36,13 @@ class DBControlInterface(DataBaseEngine):
         if self.db_nickname:
 
             for key, value in self.defined_attributes[self.db_nickname].items():
-                
+
                 setattr(
                     self,
                     "get_{}".format(key),
-                    parse_lambda(key, value, self.get_sql)
+                    parse_lambda(value, self.get_sql)
                 )
-                
+
         super().__init__(db_engine, db_nickname=self.db_nickname)
 
     def _write_to_file(self, filename: str, query_result: List):
@@ -54,13 +54,12 @@ class DBControlInterface(DataBaseEngine):
             if self.cursor.description:
 
                 csv_writer.writerow([desc[0] for desc in self.cursor.description])
-            
+
             csv_writer.writerows(query_result)
 
         return "Query result written to file: {0}".format(filename)
 
     def _save_query_to_file(self, filename: str, sql_command: str=None):
-        
         query_result = None
         command_buffer = None
 
@@ -79,13 +78,13 @@ class DBControlInterface(DataBaseEngine):
         elif sql_command and re.search(r"(?i)(select)\s.+", sql_command):
 
             query_result = self.command_interface(sql_command)
-            
+
         self._write_to_file(filename, query_result)
 
     def get_db(self):
 
         return list(self.configuration.keys())
-    
+
     def get_help(self):
 
         return """
@@ -127,13 +126,13 @@ class DBControlInterface(DataBaseEngine):
             return "No Previous Command Found!"
 
         return "Your Previous Command is: {}".format(self.command_stored_in_buffer)
-            
+
     def get_t(self):
 
         if not self.command_stored_in_buffer:
 
             return "You cannot execute any command"
-        
+
         else:
 
             buffer_list = self.command_stored_in_buffer.split(" ")
@@ -148,26 +147,24 @@ class DBControlInterface(DataBaseEngine):
     def get_save(self, args_list: list):
 
         if os.path.exists(args_list[0]):
-    
+
             return "You Have saved your previous query to file: {0}".format(args_list[0])
-        
-        else:
 
-            if len(args_list) > 1:
+        if len(args_list) > 1:
 
-                self._save_query_to_file(
-                    args_list[-1], #filename 
-                    sql_command= " ".join(args_list[0:-1]) #sqlcommand
-                )
+            self._save_query_to_file(
+                args_list[-1], #filename
+                sql_command=" ".join(args_list[0:-1]) #sqlcommand
+            )
 
-            elif len(args_list) == 1:
-        
-                self._save_query_to_file(
-                    args_list[0], #filename
-                    self.command_stored_in_buffer
-                )
+        elif len(args_list) == 1:
 
-            return "File {} written successfully".format(args_list[0])
+            self._save_query_to_file(
+                args_list[0], #filename
+                self.command_stored_in_buffer
+            )
+
+        return "File {} written successfully".format(args_list[0])
 
     def get_column(self, table_name: str):
 
@@ -207,28 +204,25 @@ class DBControlInterface(DataBaseEngine):
 
         if hasattr(self, "get_{}".format(input_command_list[0])):
 
-            instance_method = getattr(self, 
-                "get_{}".format(input_command_list[0])
-            )
+            instance_method = getattr(self,
+                                "get_{}".format(input_command_list[0])
+                            )
 
             if len(input_command_list) == 1:
-                
+
                 return instance_method()
 
-            elif len(input_command_list) > 1: 
-                
+            if len(input_command_list) > 1:
+
                 if input_command_list[0] in ["save", "column"]:
 
                     return instance_method(input_command_list[1:])
 
-                #elif input_command_list[0] == "table":
+                if input_command_list[0] in [
+                        key for key in self.defined_attributes[self.db_nickname].keys()
+                        if dict(self.defined_attributes[self.db_nickname])[key]["parameters"]
+                    ]:
 
-                #    return instance_method()
-
-                elif input_command_list[0] in [
-                    key for key in self.defined_attributes[self.db_nickname].keys() 
-                    if dict(self.defined_attributes[self.db_nickname])[key]["parameters"]]:
-                    
                     return instance_method(input_command_list[1])
 
         return self.get_sql(input_command)
@@ -236,14 +230,14 @@ class DBControlInterface(DataBaseEngine):
 
 class DBInterface(DBControlInterface):
 
-    def _delay_mode(self, data_from_table: List, line_to_display=20):
+    def _delay_mode(self, data_from_table: List, display_line=20):
 
-        if len(data_from_table) < line_to_display:
+        if len(data_from_table) < display_line:
 
             for data in data_from_table:
 
                 print("|".join([str(item) for item in data]))
-            
+
         else:
 
             index = 0
@@ -253,9 +247,9 @@ class DBInterface(DBControlInterface):
 
                 if next_input == ">":
 
-                    if index < int(len(data_from_table)/line_to_display) + 1:
+                    if index < int(len(data_from_table)/display_line) + 1:
 
-                        init_index, final_index = index*line_to_display, (index + 1)*line_to_display
+                        init_index, final_index = index*display_line, (index + 1)*display_line
 
                         for query in data_from_table[init_index: final_index]:
 
@@ -273,14 +267,14 @@ class DBInterface(DBControlInterface):
 
                         index -= 1
 
-                        for query in data_from_table[index*line_to_display: (index + 1)*line_to_display]:
+                        for query in data_from_table[index*display_line: (index + 1)*display_line]:
 
                             print("|".join([str(item) for item in query]))
 
                     else:
 
                         print("You are at the top of the page")
-                
+
                 elif next_input == "x":
 
                     break
@@ -295,11 +289,11 @@ class DBInterface(DBControlInterface):
 
         if isinstance(data_from_db, str):
 
-            if len(data_from_db) > 0:
+            if data_from_db:
 
                 print("{}\n".format(data_from_db))
-        
-        elif isinstance(data_from_db, tuple) or isinstance(data_from_db, list):
+
+        elif isinstance(data_from_db, (tuple, list)):
 
             table_header = "|".join([desc[0] for desc in self.cursor.description])
 
@@ -310,21 +304,21 @@ class DBInterface(DBControlInterface):
             if delay_mode:
 
                 self._delay_mode(data_from_db, line_to_display)
-            
+
             else:
 
                 for query in data_from_db:
 
                     print("|".join([str(entry) for entry in query]))
-            
+
             print("\n")
 
-    
+
     def get_result_output(self, input_command: str, command_stored_in_buffer):
 
         self.command_stored_in_buffer = command_stored_in_buffer
 
-        if len(input_command) == 0:
+        if not input_command:
 
             pass
 
@@ -332,14 +326,14 @@ class DBInterface(DBControlInterface):
 
             self._get_output(
                 data_from_db=self.command_interface(
-                    input_command.split("|")[0], 
+                    input_command.split("|")[0],
                 ),
-                delay_mode=True, 
+                delay_mode=True,
                 line_to_display=10
             )
-        
+
         else:
-           
+
             self._get_output(
                 data_from_db=self.command_interface(
                     input_command
