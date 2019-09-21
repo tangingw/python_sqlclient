@@ -33,8 +33,8 @@ class DBControlInterface(DataBaseEngine):
 
         self.db_nickname = db_nickname
 
-        if self.db_nickname:
-
+        if self.db_nickname and self.db_nickname in self.defined_attributes.keys():
+            
             for key, value in self.defined_attributes[self.db_nickname].items():
 
                 setattr(

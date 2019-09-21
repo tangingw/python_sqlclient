@@ -10,7 +10,6 @@ exit_command_list = ["q", "quit", "x", "exit"]
 
 def front_prompt(database_type: str=None, database_nickname: str=None):
 
-
     def platform_prompt(platform_name: str) -> str:
 
         platform_prompt_str = None
@@ -39,8 +38,7 @@ def front_prompt(database_type: str=None, database_nickname: str=None):
 
         if database_nickname:
 
-            default_prompt_str += "{0} {1} {2}> ".format(
-                database_type,
+            default_prompt_str += "{0} {1} > ".format(
                 database_nickname,
                 platform_prompt(sys.platform)
             )
@@ -87,14 +85,20 @@ def database_interface(database_type: str, db_nickname: str=None):
 
     db_client = DBInterface(database_type, db_nickname=db_nickname)
     db_client.connect()
-
+    
     while (received_command not in exit_command_list):
-
+        
         try:
 
-            if re.search(r"switch \w+$", received_command):
+            if re.search(r"switch \w+", received_command):
 
-                database_interface(database_type, received_command.split(" ")[1])
+                received_command_list = received_command.split(" ")
+
+                if database_type != received_command_list[1]:
+
+                    database_type = received_command_list[1]
+
+                database_interface(database_type, received_command_list[-1])
 
             else:
 
@@ -108,7 +112,7 @@ def database_interface(database_type: str, db_nickname: str=None):
         if not (received_command in command_keys):
 
             command_buffer = received_command
-        
+
         received_command = front_prompt(database_type, db_nickname)
 
 

@@ -25,10 +25,14 @@ class DataBaseEngine(object):
         self.conn = None
         self.cursor = None
         self.db_engine = db_engine
-        self.db_nickname = db_nickname
+        self.db_nickname = db_nickname    
         #self.sqlite3_filename = sqlite3_filename
 
     def connect(self):
+
+        if self.db_nickname not in self.configuration:
+
+            print(f"Table {self.db_nickname} Not Found in config.json")
 
         db_module = import_module(self.db_engine)
 
