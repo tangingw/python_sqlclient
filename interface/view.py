@@ -94,11 +94,11 @@ def database_interface(database_type: str, db_nickname: str=None):
 
                 received_command_list = received_command.split(" ")
 
-                if database_type != received_command_list[1]:
+                if len(received_command_list) == 3 and (database_type != received_command_list[1]):
 
                     database_type = received_command_list[1]
 
-                database_interface(database_type, received_command_list[-1])
+                database_interface(database_type, db_nickname=received_command_list[-1])
 
             else:
 

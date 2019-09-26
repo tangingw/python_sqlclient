@@ -7,6 +7,7 @@ from flask import jsonify, render_template
 #from database.models import DataBaseEngine
 from interface.control import DBControlInterface
 from chart.chart import generate_chart
+from app.utils import get_data_from_db
 
 
 db_client = None
@@ -25,26 +26,6 @@ if os.environ["DB_TYPE"] != "sqlite3":
 app = Flask(__name__)
 
 
-def _get_data_from_db(incoming_data: str) -> (list, list):
-
-    if os.environ["DB_TYPE"] == "sqlite3":
-
-        sqlite3_client = DBControlInterface(
-            "sqlite3", db_nickname=os.environ["DB_NAME"]
-        ) 
-        
-        sqlite3_client.connect()
-        return_data = sqlite3_client.command_interface("""{}""".format(incoming_data))
-
-        return [x[0] for x in sqlite3_client.cursor.description], return_data
-
-    return_data = db_client.command_interface(
-        """{}""".format(incoming_data)
-    )
-
-    return [x[0] for x in db_client.cursor.description], return_data
-
-
 @app.route("/debug")
 def get_debug():
 
@@ -58,7 +39,7 @@ def api_post_command():
         incoming_data = request.get_json()
         incoming_sql_statement = incoming_data["sql_command"]
 
-        table_header, db_response = _get_data_from_db(incoming_sql_statement)
+        table_header, db_response = get_data_from_db(db_client, incoming_sql_statement)
 
         db_response_list = [
             dict(zip(table_header, db_data)) for db_data in db_response
@@ -90,7 +71,7 @@ def post_command():
     if request.method == "POST":
 
         incoming_data = request.form.get("textbox")
-        table_header, db_response = _get_data_from_db(incoming_data)
+        table_header, db_response = get_data_from_db(db_client, incoming_data)
 
         return render_template(
             "response.html", 
@@ -108,7 +89,7 @@ def generate_chart_js():
 
         incoming_data = request.form
 
-        _, db_response = _get_data_from_db(incoming_data["sql_query"])
+        _, db_response = get_data_from_db(db_client, incoming_data["sql_command"])
 
         chart_data = generate_chart(
             incoming_data["chart"],

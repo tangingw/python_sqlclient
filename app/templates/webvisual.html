@@ -25,12 +25,38 @@
         };
 
         var incomingDataJson = JSON.parse({{ incoming_data_json|tojson|safe }});
-        incomingDataJson.options.tooltips = {
-            callbacks: {
-                label: (item) => `${item.yLabel} {{ unit }}`
+
+        if (incomingDataJson.type == "pie") {
+            /* Thanks goes to https://codepen.io/jordanwillis/pen/yMGKKE */
+            incomingDataJson.options.tooltips = {
+                callbacks: {
+                    label: function(tooltipItem, incoming_data) {
+
+                        var dataLabel = incoming_data.labels[tooltipItem.index];
+                        var value = ': ' + incoming_data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toLocaleString() + ' {{ unit }}';
+
+                        if (Chart.helpers.isArray(dataLabel)) {
+                            
+                            dataLabel = dataLabel.slice();
+                            dataLabel[0] += value;
+
+                        } else {
+
+                            dataLabel += value;
+                        }
+
+                        return dataLabel;
+                    }
+                }
             }
-        };
-        
+
+        } else {
+            incomingDataJson.options.tooltips = {
+                callbacks: {
+                    label: (item) => `${item.yLabel} {{ unit }}`
+                }
+            };
+        }
         const ctx = document.getElementById('myChart').getContext('2d');
         const myChart = new Chart(ctx, incomingDataJson);
     </script>

@@ -1,0 +1,3 @@
+select cities.name, cast(tracks.length as decimal) 
+as track_length from cities join tracks on cities.id = tracks.city_id 
+group by track_length having track_length > 50000

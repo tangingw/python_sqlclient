@@ -8,6 +8,7 @@ import jinja2
 import datetime
 import decimal
 from interface.control import DBControlInterface
+from app.utils import get_data_from_db
 
 
 db_client = None
@@ -48,27 +49,6 @@ def _return_query_result(sql_cursor):
     )
 
 
-def _get_data_from_db(incoming_data: str) -> (list, list):
-
-    if os.environ["DB_TYPE"] == "sqlite3":
-
-        sqlite3_client = DBControlInterface(
-            "sqlite3", db_nickname=os.environ["DB_NAME"]
-        ) 
-
-        sqlite3_client.connect()
-
-        return_data = sqlite3_client.command_interface("""{}""".format(incoming_data))
-
-        return [x[0] for x in sqlite3_client.cursor.description], return_data
-
-    return_data = db_client.command_interface(
-        """{}""".format(incoming_data)
-    )
-
-    return [x[0] for x in db_client.cursor.description], return_data
-
-
 class WebDebug:
 
     def on_get(self, request, response):
@@ -102,7 +82,9 @@ class WebSQLAPI:
 
                 if not api_storage or previous_command != data_from_request["sql_command"]:
 
-                    table_key, response_db = _get_data_from_db(data_from_request["sql_command"])
+                    table_key, response_db = get_data_from_db(
+                        db_client, data_from_request["sql_command"]
+                    )
                 
                     previous_command = data_from_request["sql_command"]
 
@@ -124,7 +106,7 @@ class WebSQLAPI:
 
             else:
 
-                table_key, response_db = _get_data_from_db(data_from_request["sql_command"])
+                table_key, response_db = get_data_from_db(db_client, data_from_request["sql_command"])
 
                 response.media = {
                     "status": 200,
@@ -143,6 +125,39 @@ class WebSQLAPI:
                 "error_msg": str(e)
             }
 
+class WebSQLChartjsVue:
+
+    def on_get(self, request, response):
+
+        response.content_type = falcon.MEDIA_JSON
+        
+        response.media = {
+            "status": falcon.HTTP_500,
+            "message": "Invalid Request"
+        }
+
+    def on_post(self, request, response):
+
+        pass
+        """incoming_data = request.media
+
+        _, db_response = get_data_from_db(db_client, incoming_data["sql_statement"])
+
+        chart_data = generate_chart(
+            incoming_data["chart"],
+            incoming_data["title"], 
+            incoming_data["dataset_label"], 
+            db_response,
+        )
+
+        #print(json.dumps(chart_data, indent=4))
+        return render_template(
+            "webvisual.html",
+            height=incoming_data["height"],
+            unit=incoming_data["dataset_unit"],
+            incoming_data_json=json.dumps(chart_data)
+        )
+        """
 
 class WebSQLFrontVue:
 
