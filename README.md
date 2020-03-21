@@ -227,3 +227,7 @@ To experienbce the power of Falcon loaded with the shield of Vue
 ## History to remember (14/4/2019)
 
 Facebook, Instagram and WhatsApp are currently down upon my submission of this repo.
+
+## My Talk at PyCon TW 2019
+
+Here is the link to [my talk at PyCon TW 2019](https://www.youtube.com/watch?v=3tP3UHfv9rs)
