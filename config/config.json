@@ -16,5 +16,11 @@
     },
     "city_line":{
         "db_name": "test_sqlitedb/cities_lines.db"
+    },
+    "library": {
+        "server": "localhost",
+        "username": "postgres",
+        "password": "postgres12345",
+        "db_name": "BookLibrary"
     }
 }

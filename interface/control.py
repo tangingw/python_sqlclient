@@ -174,7 +174,7 @@ class DBControlInterface(DataBaseEngine):
     def get_rollback(self):
 
         self.rollback()
-        return "Rollback is trigger!"
+        return "Rollback is triggered!"
 
     def get_webapp(self):
 

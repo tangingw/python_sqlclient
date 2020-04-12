@@ -37,7 +37,7 @@ class DataBaseEngine(object):
         db_module = import_module(self.db_engine)
 
         try:        
-        
+
             if self.db_engine == "sqlite3":
 
                 self.conn = db_module.connect(
@@ -47,10 +47,10 @@ class DataBaseEngine(object):
             else:
 
                 self.conn = db_module.connect(
-                    self.configuration[self.db_nickname]["server"], 
-                    self.configuration[self.db_nickname]["username"], 
-                    self.configuration[self.db_nickname]["password"], 
-                    self.configuration[self.db_nickname]["db_name"]
+                    host=self.configuration[self.db_nickname]["server"],
+                    database=self.configuration[self.db_nickname]["db_name"],
+                    user=self.configuration[self.db_nickname]["username"],
+                    password= self.configuration[self.db_nickname]["password"], 
                 )
 
         except db_module.InterfaceError:
@@ -73,7 +73,7 @@ class DataBaseEngine(object):
 
         self.cursor.execute(sql_statement)
 
-        sql_regex = re.compile(r"^(?i)(CREATE|ALTER|UPDATE|INSERT|DELETE)$")
+        sql_regex = re.compile(r"^(?i)(CREATE|ALTER|UPDATE|INSERT|DELETE|VIEW|ROLLBACK)$")
 
         if sql_regex.match(sql_statement.split()[0]):
 
@@ -81,7 +81,7 @@ class DataBaseEngine(object):
     
     def rollback(self):
 
-        self.cursor.rollback()
+        self.conn.rollback()
         
     def retrieve_table(self):
 
