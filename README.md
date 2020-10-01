@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-This is a universal SQL client that is written in Python. It is a command prompt developed due to nuisance experience that author faces when he uses a traditional SQL client. This is also a very lightweight SQL client that tries its best to reduce the dependacy of the external libraries apart from the SQL connectors and webapp library. The author hopes that with the minimal coding effort, the tool can be fitted into any platform that installs Python, including modern embedded devices.
+This is a universal SQL client that is written in Python. It is a command prompt developed due to nuisance experience that author faces when he used to use a traditional SQL client. This is also a very lightweight SQL client that tries its best to reduce the dependacy of the external libraries apart from the SQL connectors and webapp library. The author hopes that with the minimal coding effort, the tool can be fitted into any platform that installs Python, including modern embedded devices.
 
 ## Addressing Controversial Remarks
 
